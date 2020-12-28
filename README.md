@@ -3,7 +3,7 @@ C# implementation for [D3.js](https://github.com/d3/d3)  on .Net Standard 2.1 .
 
 ## Available
 
-* [D3Sharp.QuadTree](#D3Sharp.QuadTree) 
+* [D3Sharp.QuadTree](#D3Sharp.QuadTree) for [d3-quadtree](https://github.com/d3/d3-quadtree).
 
 
 
@@ -40,7 +40,7 @@ var q = new QuadTree<CustomData, QuadNode<CustomData>>();
 q.Extent(0, 0, 2, 2).Add(new CustomData{X=3,Y=1,CustomField="Custom"});
 Console.WriteLine($"Bounds = {q.Extents}");
 //output: new double[,] { { 0, 0 }, { 4, 4 } }
-Console.WriteLine($"Node type = {q.Root.GetType().Name");
+Console.WriteLine($"Node type = {q.Root.GetType().Name}");
 //output: QuadNode`1
 ```
 
@@ -72,7 +72,7 @@ var datas = new List<CustomData> {
 var q = new QuadTree<CustomData, CustomNode<CustomData>>(datas);
 Console.WriteLine($"Bounds = {q.Extents}");
 //output: new double[,] { { 0, 0 }, { 1, 1 } }
-Console.WriteLine($"Node type = {q.Root.GetType().Name");
+Console.WriteLine($"Node type = {q.Root.GetType().Name}");
 //output: CustomNode`1
  ```
 
