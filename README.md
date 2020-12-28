@@ -3,7 +3,7 @@ C# implementation for [D3.js](https://github.com/d3/d3)  on .Net Standard 2.1 .
 
 ## Available
 
-* [D3Sharp.QuadTree](#D3Sharp.QuadTree) for [d3-quadtree](https://github.com/d3/d3-quadtree).
+* [D3Sharp.QuadTree](#d3sharpquadtree) for [d3-quadtree](https://github.com/d3/d3-quadtree).
 
 
 
