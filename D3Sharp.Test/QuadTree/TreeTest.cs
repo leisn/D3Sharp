@@ -14,7 +14,7 @@ namespace D3Sharp.Test.QuadTree
         [TestMethod]
         public void EmptyTree()
         {
-            var q = new QuadTree<QuadTreeData>();
+            var q = new QuadTree<CustomData, QuadNode<CustomData>>();
             Assert.AreEqual(0, q.Size);
             Assert.IsNull(q.Extents);
             Assert.IsNull(q.Root);
@@ -25,12 +25,12 @@ namespace D3Sharp.Test.QuadTree
         [TestMethod]
         public void Size()
         {
-            var q = new QuadTree<QuadTreeData>();
+            var q = new QuadTree<CustomData, QuadNode<CustomData>>();
             Assert.AreEqual(0, q.Size);
-            q.Add(new QuadTreeData { X = 0, Y = 0 });
+            q.Add(new CustomData { X = 0, Y = 0 });
             Assert.AreEqual(1, q.Size);
-            q.Add(new QuadTreeData { X = 1, Y = 1 })
-               .Add(new QuadTreeData { X = 3, Y = 3 });
+            q.Add(new CustomData { X = 1, Y = 1 })
+               .Add(new CustomData { X = 3, Y = 3 });
             Assert.AreEqual(3, q.Size);
         }
     }

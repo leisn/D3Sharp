@@ -14,14 +14,14 @@ namespace D3Sharp.Test.QuadTree
         [TestMethod]
         public void VisitsEach()
         {
-            var ds = new List<QuadTreeData>
+            var ds = new List<CustomData>
                 {
-                    new QuadTreeData { X = 0, Y = 0 },
-                    new QuadTreeData { X = 1, Y = 0 },
-                    new QuadTreeData { X = 0, Y = 1 },
-                    new QuadTreeData { X = 1, Y = 1 },
+                    new CustomData { X = 0, Y = 0 },
+                    new CustomData { X = 1, Y = 0 },
+                    new CustomData { X = 0, Y = 1 },
+                    new CustomData { X = 1, Y = 1 },
                 };
-            var q = new QuadTree<QuadTreeData>(ds);
+            var q = new QuadTree<CustomData,QuadNode<CustomData>>(ds);
 
             List<double> result = new List<double>();
 
@@ -46,13 +46,13 @@ namespace D3Sharp.Test.QuadTree
         [TestMethod]
         public void VisitsApplyPreOrderTraversal()
         {
-            var ds = new List<QuadTreeData>
+            var ds = new List<CustomData>
                 {
-                    new QuadTreeData { X = 100, Y = 100 },
-                    new QuadTreeData { X = 200, Y = 200 },
-                    new QuadTreeData { X = 300, Y = 300 },
+                    new CustomData { X = 100, Y = 100 },
+                    new CustomData { X = 200, Y = 200 },
+                    new CustomData { X = 300, Y = 300 },
                 };
-            var q = new QuadTree<QuadTreeData>().Extent(0, 0, 960, 960).AddAll(ds);
+            var q = new QuadTree<CustomData,QuadNode<CustomData>>().Extent(0, 0, 960, 960).AddAll(ds);
 
             List<double> result = new List<double>();
 
@@ -78,13 +78,13 @@ namespace D3Sharp.Test.QuadTree
         [TestMethod]
         public void VisitsNotRecureseIfCallbackReutnTruthy()
         {
-            var ds = new List<QuadTreeData>
+            var ds = new List<CustomData>
                 {
-                    new QuadTreeData { X = 100, Y = 100 },
-                    new QuadTreeData { X = 700, Y = 700 },
-                    new QuadTreeData { X = 800, Y = 800 },
+                    new CustomData { X = 100, Y = 100 },
+                    new CustomData { X = 700, Y = 700 },
+                    new CustomData { X = 800, Y = 800 },
                 };
-            var q = new QuadTree<QuadTreeData>().Extent(0, 0, 960, 960).AddAll(ds);
+            var q = new QuadTree<CustomData,QuadNode<CustomData>>().Extent(0, 0, 960, 960).AddAll(ds);
 
             List<double> result = new List<double>();
 
@@ -107,7 +107,7 @@ namespace D3Sharp.Test.QuadTree
         [TestMethod]
         public void VisitsEmptyTreeNoBounds()
         {
-            var q = new QuadTree<QuadTreeData>();
+            var q = new QuadTree<CustomData,QuadNode<CustomData>>();
 
             List<double> result = new List<double>();
 
@@ -126,7 +126,7 @@ namespace D3Sharp.Test.QuadTree
         [TestMethod]
         public void VisitsEmptyTreeWithBounds()
         {
-            var q = new QuadTree<QuadTreeData>().Extent(0, 0, 960, 960);
+            var q = new QuadTree<CustomData,QuadNode<CustomData>>().Extent(0, 0, 960, 960);
 
             List<double> result = new List<double>();
 

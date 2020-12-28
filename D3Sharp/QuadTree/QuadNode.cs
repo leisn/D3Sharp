@@ -4,17 +4,17 @@ using System.Text;
 
 namespace D3Sharp.QuadTree
 {
-    public class QuadTreeNode<T>
+    public class QuadNode<T>
     {
-        protected QuadTreeNode<T>[] children = new QuadTreeNode<T>[4];
+        protected QuadNode<T>[] children = new QuadNode<T>[4];
 
-        public T Data { get; set; }
+        public virtual T Data { get; set; }
 
-        public QuadTreeNode<T> Next { get; set; }
+        public QuadNode<T> Next { get; internal set; }
 
-        public QuadTreeNode<T>[] Children => children;
+        public QuadNode<T>[] Children => children;
 
-        public QuadTreeNode<T> this[int index]
+        public QuadNode<T> this[int index]
         {
             get
             {
@@ -43,5 +43,8 @@ namespace D3Sharp.QuadTree
                 return length;
             }
         }
+
+        public QuadNode() { }
+
     }
 }

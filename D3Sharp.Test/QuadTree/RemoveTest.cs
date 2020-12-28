@@ -13,8 +13,8 @@ namespace D3Sharp.Test.QuadTree
         [TestMethod]
         public void RemoveOne()
         {
-            var q = new QuadTree<QuadTreeData>();
-            var p0 = new QuadTreeData { X = 1, Y = 1 };
+            var q = new QuadTree<CustomData,QuadNode<CustomData>>();
+            var p0 = new CustomData { X = 1, Y = 1 };
             q.Add(p0);
             Assert.AreEqual(1, q.Size);
             q.Remove(p0);
@@ -27,9 +27,9 @@ namespace D3Sharp.Test.QuadTree
         [TestMethod]
         public void RemoveFirst()
         {
-            var q = new QuadTree<QuadTreeData>();
-            var p0 = new QuadTreeData { X = 1, Y = 1 };
-            var p1 = new QuadTreeData { X = 1, Y = 1 };
+            var q = new QuadTree<CustomData,QuadNode<CustomData>>();
+            var p0 = new CustomData { X = 1, Y = 1 };
+            var p1 = new CustomData { X = 1, Y = 1 };
             q.Add(p0).Add(p1);
             Assert.AreEqual(2, q.Size);
             q.Remove(p0);
@@ -41,9 +41,9 @@ namespace D3Sharp.Test.QuadTree
         [TestMethod]
         public void RemoveAnother()
         {
-            var q = new QuadTree<QuadTreeData>();
-            var p0 = new QuadTreeData { X = 1, Y = 1 };
-            var p1 = new QuadTreeData { X = 1, Y = 1 };
+            var q = new QuadTree<CustomData,QuadNode<CustomData>>();
+            var p0 = new CustomData { X = 1, Y = 1 };
+            var p1 = new CustomData { X = 1, Y = 1 };
             q.Add(p0).Add(p1);
             Assert.AreEqual(2, q.Size);
             q.Remove(p1);
@@ -55,9 +55,9 @@ namespace D3Sharp.Test.QuadTree
         [TestMethod]
         public void RemoveNonRoot()
         {
-            var q = new QuadTree<QuadTreeData>();
-            var p0 = new QuadTreeData { X = 0, Y = 0 };
-            var p1 = new QuadTreeData { X = 1, Y = 1 };
+            var q = new QuadTree<CustomData,QuadNode<CustomData>>();
+            var p0 = new CustomData { X = 0, Y = 0 };
+            var p1 = new CustomData { X = 1, Y = 1 };
             q.Add(p0).Add(p1);
             Assert.AreEqual(2, q.Size);
             q.Remove(p0);
@@ -69,9 +69,9 @@ namespace D3Sharp.Test.QuadTree
         [TestMethod]
         public void RemoveNonRootAnother()
         {
-            var q = new QuadTree<QuadTreeData>();
-            var p0 = new QuadTreeData { X = 0, Y = 0 };
-            var p1 = new QuadTreeData { X = 1, Y = 1 };
+            var q = new QuadTree<CustomData,QuadNode<CustomData>>();
+            var p0 = new CustomData { X = 0, Y = 0 };
+            var p1 = new CustomData { X = 1, Y = 1 };
             q.Add(p0).Add(p1);
             Assert.AreEqual(2, q.Size);
             q.Remove(p1);
@@ -83,10 +83,10 @@ namespace D3Sharp.Test.QuadTree
         [TestMethod]
         public void IgnoresPointNotInTree()
         {
-            var q0 = new QuadTree<QuadTreeData>();
-            var q1 = new QuadTree<QuadTreeData>();
-            var p0 = new QuadTreeData { X = 0, Y = 0 };
-            var p1 = new QuadTreeData { X = 0, Y = 0 };
+            var q0 = new QuadTree<CustomData,QuadNode<CustomData>>();
+            var q1 = new QuadTree<CustomData,QuadNode<CustomData>>();
+            var p0 = new CustomData { X = 0, Y = 0 };
+            var p1 = new CustomData { X = 0, Y = 0 };
             q0.Add(p0);
             q1.Add(p1);
 
@@ -100,20 +100,20 @@ namespace D3Sharp.Test.QuadTree
         [TestMethod]
         public void RemoveAnotheFindInTreer()
         {
-            var ds = new List<QuadTreeData>
+            var ds = new List<CustomData>
                 {
-                    new QuadTreeData { X = 630, Y = 438 },
-                    new QuadTreeData { X = 715, Y = 464 },
-                    new QuadTreeData { X = 523, Y = 516 },
-                    new QuadTreeData { X = 646, Y = 318 },
-                    new QuadTreeData { X = 434, Y = 620 },
-                    new QuadTreeData { X = 570, Y = 489 },
-                    new QuadTreeData { X = 520, Y = 345 },
-                    new QuadTreeData { X = 459, Y = 443 },
-                    new QuadTreeData { X = 346, Y = 405 },
-                    new QuadTreeData { X = 529, Y = 444 },
+                    new CustomData { X = 630, Y = 438 },
+                    new CustomData { X = 715, Y = 464 },
+                    new CustomData { X = 523, Y = 516 },
+                    new CustomData { X = 646, Y = 318 },
+                    new CustomData { X = 434, Y = 620 },
+                    new CustomData { X = 570, Y = 489 },
+                    new CustomData { X = 520, Y = 345 },
+                    new CustomData { X = 459, Y = 443 },
+                    new CustomData { X = 346, Y = 405 },
+                    new CustomData { X = 529, Y = 444 },
                 };
-            var q = new QuadTree<QuadTreeData>().Extent(0, 0, 959, 959).AddAll(ds);
+            var q = new QuadTree<CustomData,QuadNode<CustomData>>().Extent(0, 0, 959, 959).AddAll(ds);
             q.Remove(q.Find(546,440));
 
             Tests.AreValuesEqual(new double[,] { { 0, 0 }, { 1024, 1024 } }, q.Extents);

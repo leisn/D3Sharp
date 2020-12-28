@@ -4,43 +4,32 @@ using System.Text;
 
 namespace D3Sharp.QuadTree
 {
-    public partial class QuadTree<T> where T : IQuadTreeData
+    public partial class QuadTree<TData, TNode>
+        where TData : IQuadData
+        where TNode : QuadNode<TData>, new()
     {
-        QuadTreeNode<T> root;
 
-        public QuadTreeNode<T> Root => root;
+        public TNode Root { get; private set; }
 
         double X0 { get; set; } = double.NaN;
         double Y0 { get; set; } = double.NaN;
         double X1 { get; set; } = double.NaN;
         double Y1 { get; set; } = double.NaN;
 
-        /// <summary>
-        /// 默认使用<see cref="QuadTreeNode{T}"/>作为节点的创建类型<br/>
-        /// 如果需要添加自定义字段或者属性到QuadTreeNode，请继承QuadTreeNode，然后设置这项<br/>
-        /// 由于只对空树有效，所以字段是私有的，只在构造方法中可以设置
-        /// </summary>
-        public Func<T, QuadTreeNode<T>> CreateTreeNode
-        { get; private set; } = (d) => new QuadTreeNode<T>() { Data = d };
 
-        public QuadTree(double x0, double y0, double x1, double y1,
-              Func<T, QuadTreeNode<T>> createTreeNode = null)
-            : this(null, x0, y0, x1, y1, createTreeNode)
+        public QuadTree(double x0, double y0, double x1,  double y1)
+            : this(null, x0, y0, x1, y1)
         {
         }
 
-        public QuadTree(List<T> datas = null,
+        public QuadTree(IList<TData> datas = null,
             double x0 = double.NaN, double y0 = double.NaN,
-            double x1 = double.NaN, double y1 = double.NaN,
-            Func<T, QuadTreeNode<T>> createTreeNode = null)
+            double x1 = double.NaN, double y1 = double.NaN)
         {
             this.X0 = x0;
             this.Y0 = y0;
             this.X1 = x1;
             this.Y1 = y1;
-
-            if (createTreeNode != null)
-                this.CreateTreeNode = createTreeNode;
 
             if (datas != null)
                 AddAll(datas);
@@ -57,7 +46,7 @@ namespace D3Sharp.QuadTree
                     if (node.IsLeaf)
                     {
                         do ++size;
-                        while ((node = node.Next) != null);
+                        while ((node = (TNode)node.Next) != null);
                     }
                     return false;
                 });
@@ -89,17 +78,17 @@ namespace D3Sharp.QuadTree
             }
         }
 
-        public List<T> Data
+        public List<TData> Data
         {
             get
             {
-                var data = new List<T>();
+                var data = new List<TData>();
                 this.Visit((node, a, s, d, f) =>
                 {
                     if (node.IsLeaf)
                     {
                         do data.Add(node.Data);
-                        while ((node = node.Next) != null);
+                        while ((node = (TNode)node.Next) != null);
                     }
                     return false;
                 });
@@ -107,24 +96,5 @@ namespace D3Sharp.QuadTree
             }
         }
 
-        #region inner class
-        class Quad<Tq>
-        {
-            public QuadTreeNode<Tq> Node { get; set; }
-            public double X0 { get; set; }
-            public double Y0 { get; set; }
-            public double X1 { get; set; }
-            public double Y1 { get; set; }
-
-            public Quad(QuadTreeNode<Tq> node, double x0, double y0, double x1, double y1)
-            {
-                this.Node = node;
-                this.X0 = x0;
-                this.Y0 = y0;
-                this.X1 = x1;
-                this.Y1 = y1;
-            }
-        }
-        #endregion
     }
 }

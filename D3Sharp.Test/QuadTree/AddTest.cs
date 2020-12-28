@@ -14,21 +14,21 @@ namespace D3Sharp.Test.QuadTree
         [TestMethod]
         public void AddPoint()
         {
-            var q = new QuadTree<QuadTreeData>();
-            var val1 = new QuadTreeData { X = 0.0, Y = 0.0 };
+            var q = new QuadTree<CustomData,CustomNode<CustomData>>();
+            var val1 = new CustomData { X = 0.0, Y = 0.0 };
             var root = q.Add(val1).Root;
             Assert.AreSame(root.Data, val1);
-            var val2 = new QuadTreeData { X = 0.9, Y = 0.9 };
+            var val2 = new CustomData { X = 0.9, Y = 0.9 };
             root = q.Add(val2).Root;
             Assert.AreSame(root[0].Data, val1);
             Assert.AreSame(root[3].Data, val2);
-            var val3 = new QuadTreeData { X = 0.9, Y = 0 };
+            var val3 = new CustomData { X = 0.9, Y = 0 };
             root = q.Add(val3).Root;
             Assert.AreSame(root[1].Data, val3);
-            var val4 = new QuadTreeData { X = 0, Y = 0.9 };
+            var val4 = new CustomData { X = 0, Y = 0.9 };
             root = q.Add(val4).Root;
             Assert.AreSame(root[2].Data, val4);
-            var val5 = new QuadTreeData { X = 0.4, Y = 0.4 };
+            var val5 = new CustomData { X = 0.4, Y = 0.4 };
             root = q.Add(val5).Root;
             Assert.AreSame(root[0][0].Data, val1);
             Assert.AreSame(root[0][3].Data, val5);
@@ -40,20 +40,20 @@ namespace D3Sharp.Test.QuadTree
         [TestMethod]
         public void PointsOnPerimeterOfBounds()
         {
-            var q = new QuadTree<QuadTreeData>()
+            var q = new QuadTree<CustomData,CustomNode<CustomData>>()
                 .Extent(new double[,] { { 0, 0 }, { 1, 1 } });
 
-            var val1 = new QuadTreeData { X = 0, Y = 0 };
+            var val1 = new CustomData { X = 0, Y = 0 };
             var root = q.Add(val1).Root;
             Assert.AreSame(root.Data, val1);
-            var val2 = new QuadTreeData { X = 1, Y = 1 };
+            var val2 = new CustomData { X = 1, Y = 1 };
             root = q.Add(val2).Root;
             Assert.AreSame(root[0].Data, val1);
             Assert.AreSame(root[3].Data, val2);
-            var val3 = new QuadTreeData { X = 1, Y = 0 };
+            var val3 = new CustomData { X = 1, Y = 0 };
             root = q.Add(val3).Root;
             Assert.AreSame(root[1].Data, val3);
-            var val4 = new QuadTreeData { X = 0, Y = 1 };
+            var val4 = new CustomData { X = 0, Y = 1 };
             root = q.Add(val4).Root;
             Assert.AreSame(root[2].Data, val4);
             Assert.AreSame(root[0].Data, val1);
@@ -64,60 +64,59 @@ namespace D3Sharp.Test.QuadTree
         [TestMethod]
         public void PointsAtTopOfBounds()
         {
-            var q = new QuadTree<QuadTreeData>()
+            var q = new QuadTree<CustomData,CustomNode<CustomData>>()
                 .Extent(new double[,] { { 0, 0 }, { 2, 2 } });
-
-            var bound = q.Add(new QuadTreeData { X = 1, Y = -1 }).Extents;
+            var bound = q.Add(new CustomData { X = 1, Y = -1 }).Extents;
             Tests.AreValuesEqual(new double[,] { { 0, -4 }, { 8, 4 } }, bound);
         }
 
         [TestMethod]
         public void PointsAtRightOfBounds()
         {
-            var q = new QuadTree<QuadTreeData>()
+            var q = new QuadTree<CustomData,CustomNode<CustomData>>()
                 .Extent(new double[,] { { 0, 0 }, { 2, 2 } });
 
-            var bound = q.Add(new QuadTreeData { X = 3, Y = 1 }).Extents;
+            var bound = q.Add(new CustomData { X = 3, Y = 1 }).Extents;
             Tests.AreValuesEqual(new double[,] { { 0, 0 }, { 4, 4 } }, bound);
         }
 
         [TestMethod]
         public void PointsAtBottomOfBounds()
         {
-            var q = new QuadTree<QuadTreeData>()
+            var q = new QuadTree<CustomData,CustomNode<CustomData>>()
                 .Extent(new double[,] { { 0, 0 }, { 2, 2 } });
 
-            var bound = q.Add(new QuadTreeData { X = 1, Y = 3 }).Extents;
+            var bound = q.Add(new CustomData { X = 1, Y = 3 }).Extents;
             Tests.AreValuesEqual(new double[,] { { 0, 0 }, { 4, 4 } }, bound);
         }
 
         [TestMethod]
         public void PointsAtLeftOfBounds()
         {
-            var q = new QuadTree<QuadTreeData>()
+            var q = new QuadTree<CustomData,CustomNode<CustomData>>()
                 .Extent(new double[,] { { 0, 0 }, { 2, 2 } });
 
-            var bound = q.Add(new QuadTreeData { X = -1, Y = 1 }).Extents;
+            var bound = q.Add(new CustomData { X = -1, Y = 1 }).Extents;
             Tests.AreValuesEqual(new double[,] { { -4, 0 }, { 4, 8 } }, bound);
         }
 
         [TestMethod]
         public void CoincidentPointsByCreateLinkedList()
         {
-            var q = new QuadTree<QuadTreeData>()
+            var q = new QuadTree<CustomData,CustomNode<CustomData>>()
                 .Extent(new double[,] { { 0, 0 }, { 1, 1 } });
 
-            var val1 = new QuadTreeData { X = 0, Y = 0 };
+            var val1 = new CustomData { X = 0, Y = 0 };
             var root = q.Add(val1).Root;
             Assert.AreSame(root.Data, val1);
-            var val2 = new QuadTreeData { X = 1, Y = 0 };
+            var val2 = new CustomData { X = 1, Y = 0 };
             root = q.Add(val2).Root;
             Assert.AreSame(root[0].Data, val1);
             Assert.AreSame(root[1].Data, val2);
-            var val3 = new QuadTreeData { X = 0, Y = 1 };
+            var val3 = new CustomData { X = 0, Y = 1 };
             root = q.Add(val3).Root;
             Assert.AreSame(root[2].Data, val3);
-            var val4 = new QuadTreeData { X = 0, Y = 1 };
+            var val4 = new CustomData { X = 0, Y = 1 };
             root = q.Add(val4).Root;
             Assert.AreSame(root[2].Next.Data, val3);
             Assert.AreSame(root[2].Data, val4);
@@ -126,8 +125,8 @@ namespace D3Sharp.Test.QuadTree
         [TestMethod]
         public void ImplicitlyDeinesTrivialBoundsForFistPoint()
         {
-            var q = new QuadTree<QuadTreeData>();
-            var val1 = new QuadTreeData { X = 1, Y = 2 };
+            var q = new QuadTree<CustomData,CustomNode<CustomData>>();
+            var val1 = new CustomData { X = 1, Y = 2 };
             var bound = q.Add(val1).Extents;
             Tests.AreValuesEqual(new double[,] { { 1, 2 }, { 2, 3 } }, bound);
             var root = q.Root;
@@ -136,22 +135,22 @@ namespace D3Sharp.Test.QuadTree
 
 
         [TestMethod]
-        public void AddAllPoints()
+        public void AddAllPointsIgnoreInvalid()
         {
-            var q = new QuadTree<QuadTreeData>();
+            var q = new QuadTree<CustomData,CustomNode<CustomData>>();
 
-            var datas = new List<QuadTreeData> {
-                new QuadTreeData{X=double.NaN,Y=0},
-                new QuadTreeData{X=0,Y=double.NaN},
+            var datas = new List<CustomData> {
+                new CustomData{X=double.NaN,Y=0},
+                new CustomData{X=0,Y=double.NaN},
             };
 
             var root = q.AddAll(datas).Root;
             Assert.AreEqual(root, null);
             Assert.AreEqual(q.Extents, null);
 
-            var datas2 = new List<QuadTreeData> {
-                new QuadTreeData{X=0,Y=0},
-                new QuadTreeData{X=0.9,Y=0.9},
+            var datas2 = new List<CustomData> {
+                new CustomData{X=0,Y=0},
+                new CustomData{X=0.9,Y=0.9},
             };
             root = q.AddAll(datas2).Root;
             Assert.AreEqual(datas2[0], root[0].Data);
@@ -169,17 +168,17 @@ namespace D3Sharp.Test.QuadTree
         [TestMethod]
         public void AddEmptyArray()
         {
-            var q = new QuadTree<QuadTreeData>();
+            var q = new QuadTree<CustomData,CustomNode<CustomData>>();
 
-            var datas = new List<QuadTreeData>();
+            var datas = new List<CustomData>();
 
             var root = q.AddAll(datas).Root;
             Assert.AreEqual(root, null);
             Assert.AreEqual(q.Extents, null);
 
-            var datas2 = new List<QuadTreeData> {
-                new QuadTreeData{X=0,Y=0},
-                new QuadTreeData{X=1,Y=1},
+            var datas2 = new List<CustomData> {
+                new CustomData{X=0,Y=0},
+                new CustomData{X=1,Y=1},
             };
             root = q.AddAll(datas2).Root;
             Assert.AreEqual(datas2[0], root[0].Data);
@@ -198,13 +197,13 @@ namespace D3Sharp.Test.QuadTree
         [TestMethod]
         public void DataInTree()
         {
-            var q = new QuadTree<QuadTreeData>();
+            var q = new QuadTree<CustomData,CustomNode<CustomData>>();
 
             Assert.AreEqual(q.Data.Count, 0);
 
-            var datas = new List<QuadTreeData>(){
-                new QuadTreeData{X=0,Y=0},
-                new QuadTreeData{X=1,Y=2},
+            var datas = new List<CustomData>(){
+                new CustomData{X=0,Y=0},
+                new CustomData{X=1,Y=2},
             };
 
             q.AddAll(datas);

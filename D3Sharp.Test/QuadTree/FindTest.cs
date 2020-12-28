@@ -14,12 +14,12 @@ namespace D3Sharp.Test.QuadTree
         [TestMethod]
         public void ClosetPoint()
         {
-            var q = new QuadTree<QuadTreeData>();
+            var q = new QuadTree<CustomData,QuadNode<CustomData>>();
 
-            var datas = new List<QuadTreeData>();
+            var datas = new List<CustomData>();
             for (int i = 0; i < 17 * 17; i++)
             {
-                datas.Add(new QuadTreeData
+                datas.Add(new CustomData
                 {
                     X = i % 17d,
                     Y = i / 17 | 0
@@ -27,7 +27,7 @@ namespace D3Sharp.Test.QuadTree
             }
             q.AddAll(datas);
 
-            QuadTreeData data = q.Find(0.1, 0.1);
+            CustomData data = q.Find(0.1, 0.1);
             Assert.AreEqual(data.X, 0); Assert.AreEqual(data.Y, 0);
             data = q.Find(7.1, 7.1);
             Assert.AreEqual(data.X, 7); Assert.AreEqual(data.Y, 7);
@@ -40,17 +40,17 @@ namespace D3Sharp.Test.QuadTree
         [TestMethod]
         public void ClosetPointWithinRadius()
         {
-            var q = new QuadTree<QuadTreeData>();
+            var q = new QuadTree<CustomData,QuadNode<CustomData>>();
 
-            var datas = new List<QuadTreeData>() {
-                new QuadTreeData{X=0,Y=0},
-                new QuadTreeData{X=100,Y=0},
-                new QuadTreeData{X=0,Y=100},
-                new QuadTreeData{X=100,Y=100},
+            var datas = new List<CustomData>() {
+                new CustomData{X=0,Y=0},
+                new CustomData{X=100,Y=0},
+                new CustomData{X=0,Y=100},
+                new CustomData{X=100,Y=100},
             };
             q.AddAll(datas);
 
-            QuadTreeData data = q.Find(20, 20, double.PositiveInfinity);
+            CustomData data = q.Find(20, 20, double.PositiveInfinity);
             Assert.AreEqual(data.X, 0); Assert.AreEqual(data.Y, 0);
             data = q.Find(20, 20, 20 * Math.Sqrt(2) + 1e-6);
             Assert.AreEqual(data.X, 0); Assert.AreEqual(data.Y, 0);
@@ -69,17 +69,17 @@ namespace D3Sharp.Test.QuadTree
         [TestMethod]
         public void ClosetPointWithinRadiusasInfinity()
         {
-            var q = new QuadTree<QuadTreeData>();
+            var q = new QuadTree<CustomData,QuadNode<CustomData>>();
 
-            var datas = new List<QuadTreeData>() {
-                new QuadTreeData{X=0,Y=0},
-                new QuadTreeData{X=100,Y=0},
-                new QuadTreeData{X=0,Y=100},
-                new QuadTreeData{X=100,Y=100},
+            var datas = new List<CustomData>() {
+                new CustomData{X=0,Y=0},
+                new CustomData{X=100,Y=0},
+                new CustomData{X=0,Y=100},
+                new CustomData{X=100,Y=100},
             };
             q.AddAll(datas);
 
-            QuadTreeData data = q.Find(20, 20, double.NaN);
+            CustomData data = q.Find(20, 20, double.NaN);
             Assert.AreEqual(data.X, 0); Assert.AreEqual(data.Y, 0);
             data = q.Find(20, 20, double.PositiveInfinity);
             Assert.AreEqual(data.X, 0); Assert.AreEqual(data.Y, 0);
