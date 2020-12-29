@@ -98,9 +98,9 @@ namespace D3Sharp.QuadTree
                 }
                 next.Push(q);
             }
-            while (quads.Count > 0)
+            while (next.Count > 0)
             {
-                q = quads.Pop();
+                q = next.Pop();
                 callback((TNode)q.Node, q.X0, q.Y0, q.X1, q.Y1);
             }
             return this;
