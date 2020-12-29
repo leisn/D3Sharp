@@ -60,8 +60,8 @@ namespace D3Sharp.QuadTree
                 }
                 else
                 {
-                    var dx = x - node.Data.X;
-                    var dy = y - node.Data.Y;
+                    var dx = x - getX(node.Data);
+                    var dy = y - getY(node.Data);
                     var d2 = dx * dx + dy * dy;
                     if (d2 < radius)
                     {

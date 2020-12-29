@@ -17,12 +17,18 @@ namespace D3Sharp.QuadTree
         double Y1 { get; set; } = double.NaN;
 
 
-        public QuadTree(double x0, double y0, double x1,  double y1)
-            : this(null, x0, y0, x1, y1)
+        public QuadTree(double x0, double y0, double x1, double y1)
+            : this(null, null, null, x0, y0, x1, y1)
+        {
+        }
+
+        public QuadTree(Func<TData, double> getX, Func<TData, double> getY)
+           : this(null, getX, getY)
         {
         }
 
         public QuadTree(IList<TData> datas = null,
+            Func<TData, double> getX = null, Func<TData, double> getY = null,
             double x0 = double.NaN, double y0 = double.NaN,
             double x1 = double.NaN, double y1 = double.NaN)
         {
@@ -30,11 +36,17 @@ namespace D3Sharp.QuadTree
             this.Y0 = y0;
             this.X1 = x1;
             this.Y1 = y1;
-
+            this.GetX = getX;
+            this.GetY = getY;
             if (datas != null)
                 AddAll(datas);
         }
 
+        public Func<TData, double> GetX { get; }
+        public Func<TData, double> GetY { get; }
+
+        private double getX(TData data) => GetX == null ? data.X : GetX(data);
+        private double getY(TData data) => GetY == null ? data.Y : GetY(data);
 
         public int Size
         {

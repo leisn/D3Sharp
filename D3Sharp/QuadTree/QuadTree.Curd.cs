@@ -10,8 +10,8 @@ namespace D3Sharp.QuadTree
     {
         public QuadTree<TData, TNode> Add(TData data)
         {
-            var x = data.X;
-            var y = data.Y;
+            var x = getX(data);
+            var y = getY(data);
             return this.Cover(x, y).add(x, y, data);
         }
 
@@ -48,7 +48,7 @@ namespace D3Sharp.QuadTree
                 }
             }
             Console.WriteLine(data);
-            xp = node.Data.X; yp = node.Data.Y;
+            xp = getX(node.Data); yp = getY(node.Data);
             if (x == xp && y == yp)
             {
                 leaf.Next = node;
@@ -61,7 +61,7 @@ namespace D3Sharp.QuadTree
             do
             {
                 parent = parent != null
-                    ? (TNode)(parent[i] =  new TNode())
+                    ? (TNode)(parent[i] = new TNode())
                     : (Root = new TNode());
                 if (right = x >= (xm = (x0 + x1) / 2)) x0 = xm; else x1 = xm;
                 if (bottom = y >= (ym = (y0 + y1) / 2)) y0 = ym; else y1 = ym;
@@ -87,7 +87,7 @@ namespace D3Sharp.QuadTree
             for (int i = 0; i < n; i++)
             {
                 data = datas[i];
-                if (double.IsNaN(x = data.X) || double.IsNaN(y = data.Y))
+                if (double.IsNaN(x = getX(data)) || double.IsNaN(y = getY(data)))
                     continue;
                 xz[i] = x;
                 yz[i] = y;
@@ -110,13 +110,13 @@ namespace D3Sharp.QuadTree
 
         public QuadTree<TData, TNode> Remove(TData d)
         {
-            if (double.IsNaN(d.X) || double.IsNaN(d.Y))
+            double x = getX(d), y = getY(d);
+            if (double.IsNaN(x) || double.IsNaN(y))
                 return this;
-
 
             var node = this.Root;
             if (node == null) return this;
-            double x = d.X, y = d.Y;
+
             var x0 = this.X0;
             var y0 = this.Y0;
             var x1 = this.X1;
