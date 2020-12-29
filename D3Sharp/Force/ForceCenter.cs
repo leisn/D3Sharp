@@ -8,7 +8,7 @@ namespace D3Sharp.Force
     {
         public double Cx { get; set; }
         public double Cy { get; set; }
-        public int Strength { get; set; } = 1;
+        public double Strength { get; set; } = 1;
 
         public ForceCenter(double cx = 0, double cy = 0)
         {

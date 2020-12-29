@@ -15,7 +15,7 @@ namespace D3Sharp.Force
         }
         #endregion
 
-        public int Strength { get; set; } = 1;
+        public double Strength { get; set; } = 1;
         public int Iterations { get; set; } = 1;
 
         double[] Radii;
@@ -49,6 +49,17 @@ namespace D3Sharp.Force
             return this;
         }
         #endregion
+
+        public ForceCollide<TNode> SetStrength(double strength)
+        {
+            this.Strength = strength;
+            return this;
+        }
+        public ForceCollide<TNode> SetIterations(int iterations)
+        {
+            this.Iterations = iterations;
+            return this;
+        }
 
         protected override void Initialize()
         {

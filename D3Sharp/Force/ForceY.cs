@@ -36,7 +36,7 @@ namespace D3Sharp.Force
         }
         public ForceY<TNode> SetStrength(double strength)
         {
-            this.strengthFunc = (_, __, ___) => strength;
+            this.StrengthFunc = (_, __, ___) => strength;
             return this;
         }
 

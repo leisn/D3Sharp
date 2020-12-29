@@ -27,7 +27,7 @@ namespace D3Sharp.Force
         Timer stepper;
 
         public int RefreshRate { get; }
-        EventHandler<string> Events;
+        public event EventHandler<string> Events;
         #endregion
 
         #region properties
@@ -78,14 +78,18 @@ namespace D3Sharp.Force
         }
 
         #region private methods
+        private object obj = new object();
         private void step(object sender, ElapsedEventArgs e)
         {
-            Tick();
-            Events?.Invoke(this, "tick");
-            if (Alpha < AlphaMin)
+            lock (obj)
             {
-                Stop();
-                Events?.Invoke(this, "end");
+                Tick();
+                Events?.Invoke(this, "tick");
+                if (Alpha < AlphaMin)
+                {
+                    Stop();
+                    Events?.Invoke(this, "end");
+                }
             }
         }
 
@@ -150,30 +154,6 @@ namespace D3Sharp.Force
             return Forces[name];
         }
 
-        public TNode Find(double x, double y, double radius = double.NaN)
-        {
-            double dx, dy, d2;
-            TNode node;
-            TNode closest = default;
-            if (double.IsNaN(radius))
-                radius = double.PositiveInfinity;
-            else
-                radius *= radius;
-            for (int i = 0; i < Nodes.Count; i++)
-            {
-                node = Nodes[i];
-                dx = x - node.X;
-                dy = y - node.Y;
-                d2 = dx * dx + dy * dy;
-                if (d2 < radius)
-                {
-                    closest = node;
-                    radius = d2;
-                }
-            }
-            return closest;
-        }
-
         public Simulation<TNode> Tick(int iterations = 1)
         {
             if (iterations == 0)
@@ -209,6 +189,30 @@ namespace D3Sharp.Force
             }
 
             return this;
+        }
+
+        public TNode Find(double x, double y, double radius = double.NaN)
+        {
+            double dx, dy, d2;
+            TNode node;
+            TNode closest = default;
+            if (double.IsNaN(radius))
+                radius = double.PositiveInfinity;
+            else
+                radius *= radius;
+            for (int i = 0; i < Nodes.Count; i++)
+            {
+                node = Nodes[i];
+                dx = x - node.X;
+                dy = y - node.Y;
+                d2 = dx * dx + dy * dy;
+                if (d2 < radius)
+                {
+                    closest = node;
+                    radius = d2;
+                }
+            }
+            return closest;
         }
 
         public Simulation<TNode> Stop()

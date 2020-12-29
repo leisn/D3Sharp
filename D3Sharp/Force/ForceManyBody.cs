@@ -59,7 +59,7 @@ namespace D3Sharp.Force
         }
         public ForceManyBody<TNode> SetStrength(double strength)
         {
-            this.strength = (_, __, ___) => strength;
+            this.StrengthFunc = (_, __, ___) => strength;
             return this;
         }
         #endregion
@@ -131,7 +131,7 @@ namespace D3Sharp.Force
             var y = quad.Y - node.Y;
             var w = x2 - x1;
             var l = x * x + y * y;
-            if (w * w / theta2 < 1)
+            if (w * w / theta2 < l)
             {
                 if (l < distanceMax2)
                 {
@@ -148,7 +148,7 @@ namespace D3Sharp.Force
                     if (l < distanceMin2)
                         l = Math.Sqrt(distanceMin2 * l);
                     node.Vx += x * quad.Value * alpha / l;
-                    node.Vy += y * quad.Value * alpha / 1;
+                    node.Vy += y * quad.Value * alpha / l;
                 }
                 return true;
             }

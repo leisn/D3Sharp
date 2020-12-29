@@ -46,7 +46,7 @@ namespace D3Sharp.Force
         }
         public ForceRadial<TNode> SetStrength(double strength)
         {
-            this.strengthFunc = (_, __, ___) => strength;
+            this.StrengthFunc = (_, __, ___) => strength;
             return this;
         }
 
@@ -62,7 +62,7 @@ namespace D3Sharp.Force
         }
         public ForceRadial<TNode> SetRadius(double radius)
         {
-            this.radiusFunc = (_, __, ___) => radius;
+            this.RadiusFunc = (_, __, ___) => radius;
             return this;
         }
         #endregion

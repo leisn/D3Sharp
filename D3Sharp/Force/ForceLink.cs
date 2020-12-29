@@ -60,7 +60,7 @@ namespace D3Sharp.Force
         }
         public ForceLink<TNode, TLink> SetStrength(double strength)
         {
-            this.strength = (_, __, ___) => strength;
+            this.StrengthFunc = (_, __, ___) => strength;
             return this;
         }
 
@@ -76,7 +76,7 @@ namespace D3Sharp.Force
         }
         public ForceLink<TNode, TLink> SetDistance(double distance)
         {
-            this.distance = (_, __, ___) => distance;
+            this.DistanceFunc = (_, __, ___) => distance;
             return this;
         }
         #endregion
@@ -125,7 +125,7 @@ namespace D3Sharp.Force
                 link = _links[i];
                 var source = (TNode)link.Source;
                 var target = (TNode)link.Target;
-                bias[i] = count[source.Index] / (count[source.Index] + count[target.Index]);
+                bias[i] = (double)count[source.Index] / (count[source.Index] + count[target.Index]);
             }
 
             strengths = new double[m]; initializeStrength();
@@ -165,9 +165,11 @@ namespace D3Sharp.Force
                     source = (TNode)link.Source;
                     target = (TNode)link.Target;
                     x = target.X + target.Vx - source.X - source.Vx;
-                    if (x == 0) x = IRandom.Jiggle(RandomSource);
+                    if (x == 0) 
+                        x = IRandom.Jiggle(RandomSource);
                     y = target.Y + target.Vy - source.Y - source.Vy;
-                    if (y == 0) y = IRandom.Jiggle(RandomSource);
+                    if (y == 0) 
+                        y = IRandom.Jiggle(RandomSource);
                     l = Math.Sqrt(x * x + y * y);
                     l = (l - distances[i]) / l * alpha * strengths[i];
                     x *= l; y *= l;

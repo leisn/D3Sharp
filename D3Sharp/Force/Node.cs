@@ -29,11 +29,11 @@ namespace D3Sharp.Force
         /// <summary>
         /// the node’s current x-position
         /// </summary>
-        public double X { get; set; } = double.NaN;
+        public virtual double X { get; set; } = double.NaN;
         /// <summary>
         /// the node’s current y-position
         /// </summary>
-        public double Y { get; set; } = double.NaN;
+        public virtual double Y { get; set; } = double.NaN;
 
         public override string ToString()
         {
