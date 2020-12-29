@@ -19,21 +19,23 @@ namespace D3Sharp.Force
         public override Force<TNode> UseForce(double alpha = 0)
         {
             int i;
-            int n = nodes.Count;
-           TNode node;
+            int n = Nodes.Count;
+            TNode node;
             double sx = 0;
             double sy = 0;
 
             for (i = 0; i < n; ++i)
             {
-                node = nodes[i];
+                node = Nodes[i];
                 sx += node.X;
                 sy += node.Y;
             }
 
-            for (sx = (sx / n - Cx) * Strength, sy = (sy / n - Cy) * Strength, i = 0; i < n; ++i)
+            for (sx = (sx / n - Cx) * Strength,
+                 sy = (sy / n - Cy) * Strength,
+                 i = 0; i < n; ++i)
             {
-                node = nodes[i];
+                node = Nodes[i];
                 node.X -= sx;
                 node.Y -= sy;
             }

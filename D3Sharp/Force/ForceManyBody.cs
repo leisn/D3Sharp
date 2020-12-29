@@ -27,7 +27,7 @@ namespace D3Sharp.Force
 
         public ForceManyBody()
         {
-            strength = (___, _, __) => { return -30; };
+            strength = defaultStrength; 
         }
 
         public double DistanceMin
@@ -46,15 +46,23 @@ namespace D3Sharp.Force
             set => this.theta2 = value * value;
         }
 
+        #region func properties
+        private double defaultStrength(TNode node, int i, List<TNode> nodes) => -30;
         public ForceDelegate<TNode> StrengthFunc
         {
             get => this.strength;
             set
             {
-                this.strength = value;
+                this.strength = value == null ? defaultStrength : value;
                 Initialize();
             }
         }
+        public ForceManyBody<TNode> SetStrength(double strength)
+        {
+            this.strength = (_, __, ___) => strength;
+            return this;
+        }
+        #endregion
 
         protected override void Initialize()
         {
@@ -66,7 +74,7 @@ namespace D3Sharp.Force
             for (int i = 0; i < n; i++)
             {
                 node = Nodes[i];
-                strengths[node.Index] = strength(node, i, nodes);
+                strengths[node.Index] = strength(node, i, Nodes);
             }
         }
 
@@ -129,12 +137,12 @@ namespace D3Sharp.Force
                 {
                     if (x == 0)
                     {
-                        x = Helper.Jiggle(RandomSource);
+                        x = IRandom.Jiggle(RandomSource);
                         l += x * x;
                     }
                     if (y == 0)
                     {
-                        y = Helper.Jiggle(RandomSource);
+                        y = IRandom.Jiggle(RandomSource);
                         l += y * y;
                     }
                     if (l < distanceMin2)
@@ -150,12 +158,12 @@ namespace D3Sharp.Force
             {
                 if (x == 0)
                 {
-                    x = Helper.Jiggle(RandomSource);
+                    x = IRandom.Jiggle(RandomSource);
                     l += x * x;
                 }
                 if (y == 0)
                 {
-                    y = Helper.Jiggle(RandomSource);
+                    y = IRandom.Jiggle(RandomSource);
                     l += y * y;
                 }
                 if (l < distanceMin2) l = Math.Sqrt(distanceMin2 * l);

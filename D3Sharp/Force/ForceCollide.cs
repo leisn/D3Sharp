@@ -19,31 +19,36 @@ namespace D3Sharp.Force
         public int Iterations { get; set; } = 1;
 
         double[] Radii;
-        private ForceDelegate<TNode> radiusFunc;
+        private ForceDelegate<TNode> radiusFunc = null;
 
+        #region Constructors
         public ForceCollide(ForceDelegate<TNode> radiusFunc = null)
         {
-            if (radiusFunc != null)
-                this.radiusFunc = radiusFunc;
-            else
-                this.radiusFunc = (_, __, ___) => { return 1; };
+            this.radiusFunc = radiusFunc == null ? defaultRadius : radiusFunc;
         }
-
-        public ForceCollide(double radius) :
-            this((_, __, ___) => { return radius; })
+        public ForceCollide(double radius)
         {
+            this.SetRadius(radius);
         }
+        #endregion
 
-        public ForceDelegate<TNode> RadiusFunc => this.radiusFunc;
-
-        public double Radius
+        #region func properties
+        protected double defaultRadius(TNode node, int i, List<TNode> nodes) => 1;
+        public ForceDelegate<TNode> RadiusFunc
         {
+            get => this.radiusFunc;
             set
             {
-                this.radiusFunc = (_, __, ___) => { return value; };
+                this.radiusFunc = value == null ? defaultRadius : value;
                 Initialize();
             }
         }
+        public ForceCollide<TNode> SetRadius(double radius)
+        {
+            this.RadiusFunc = (_, __, ___) => radius;
+            return this;
+        }
+        #endregion
 
         protected override void Initialize()
         {
@@ -55,9 +60,12 @@ namespace D3Sharp.Force
             for (int i = 0; i < n; i++)
             {
                 node = Nodes[i];
-                Radii[node.Index] = RadiusFunc(node, i, nodes);
+                Radii[node.Index] = RadiusFunc(node, i, Nodes);
             }
         }
+
+        double getX(TNode d) => d.X + d.Vx;
+        double getY(TNode d) => d.Y + d.Vy;
 
         private void prepare(QtCNode quad, double x0, double y0, double x1, double y1)
         {
@@ -78,12 +86,9 @@ namespace D3Sharp.Force
             }
         }
 
-        public double getX(TNode d) => d.X + d.Vx;
-        public double getY(TNode d) => d.Y + d.Vy;
-
         public override Force<TNode> UseForce(double alpha = 0)
         {
-            int n = nodes.Count;
+            int n = Nodes.Count;
 
             double xi, yi, ri, ri2;
             TNode node;
@@ -120,12 +125,12 @@ namespace D3Sharp.Force
                         {
                             if (x == 0)
                             {
-                                x = Helper.Jiggle(RandomSource);
+                                x = IRandom.Jiggle(RandomSource);
                                 l += x * x;
                             }
                             if (y == 0)
                             {
-                                y = Helper.Jiggle(RandomSource);
+                                y = IRandom.Jiggle(RandomSource);
                                 l += y * y;
                             }
                             l = (r - (l = Math.Sqrt(l))) / l * Strength;

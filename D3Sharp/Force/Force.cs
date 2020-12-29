@@ -6,25 +6,27 @@ namespace D3Sharp.Force
 {
     public abstract class Force<TNode> where TNode : Node
     {
-        protected List<TNode> nodes;
+        private List<TNode> nodes;
+        private IRandom random;
 
         public List<TNode> Nodes
         {
             get => nodes;
-            internal set
-            {
-                this.nodes = value;
-            }
+            set { this.nodes = value; Initialize(); }
         }
 
-        public IRandom RandomSource { get; set; }
+        public IRandom RandomSource
+        {
+            get => random;
+            set { this.random = value; Initialize(); }
+        }
 
         public Force() { }
 
-        public Force<TNode> Initialize(List<TNode> nodes, IRandom random)
+        public Force<TNode> Initialize(List<TNode> nodes, IRandom randomSource)
         {
-            this.Nodes = nodes;
-            this.RandomSource = random;
+            this.nodes = nodes;
+            this.random = randomSource;
             Initialize();
             return this;
         }

@@ -10,46 +10,60 @@ namespace D3Sharp.Force
         ForceDelegate<TNode> xFunc;
         ForceDelegate<TNode> strengthFunc;
 
+        #region Constructors
         public ForceX(ForceDelegate<TNode> xFunc = null)
         {
-            strengthFunc = (___, _, __) => { return 0.1; };
-            if (xFunc != null)
-                this.xFunc = xFunc;
-            else
-                this.xFunc = (_, __, ___) => { return 0; };
+            strengthFunc = defaultStrength;
+            this.xFunc = xFunc == null ? defaultX : xFunc;
         }
 
-        public ForceX(double x) : this((_, __, ___) => { return x; })
+        public ForceX(double x)
         {
+            strengthFunc = defaultStrength;
+            this.SetX(x);
         }
+        #endregion
 
-        public ForceDelegate<TNode> XFunc => this.xFunc;
-
-        public double X
-        {
-            set
-            {
-                this.xFunc = (_, __, ___) => { return value; };
-                Initialize();
-            }
-        }
-
+        #region func properties
+        double defaultStrength(TNode node, int i, List<TNode> nodes) => 0.1;
         public ForceDelegate<TNode> StrengthFunc
         {
             get => this.strengthFunc;
             set
             {
-                this.strengthFunc = value;
+                this.strengthFunc = value == null ? defaultStrength : value;
                 Initialize();
             }
         }
+        public ForceX<TNode> SetStrength(double strength)
+        {
+            this.strengthFunc = (_, __, ___) => strength;
+            return this;
+        }
+
+        double defaultX(TNode node, int i, List<TNode> nodes) => 0;
+        public ForceDelegate<TNode> XFunc
+        {
+            get => this.xFunc;
+            set
+            {
+                this.xFunc = value == null ? defaultX : value;
+                Initialize();
+            }
+        }
+        public ForceX<TNode> SetX(double x)
+        {
+            this.XFunc = (_, __, ___) => x;
+            return this;
+        }
+        #endregion
 
         public override Force<TNode> UseForce(double alpha = 0)
         {
             TNode node;
-            for (int i = 0, n = nodes.Count; i < n; i++)
+            for (int i = 0, n = Nodes.Count; i < n; i++)
             {
-                node = nodes[i];
+                node = Nodes[i];
                 node.Vx += (xz[i] - node.X) * strengths[i] * alpha;
             }
             return this;
@@ -57,13 +71,13 @@ namespace D3Sharp.Force
 
         protected override void Initialize()
         {
-            if (nodes.IsNullOrEmpty()) return;
-            int n = nodes.Count;
+            if (Nodes.IsNullOrEmpty()) return;
+            int n = Nodes.Count;
             strengths = new double[n];
             xz = new double[n];
             for (int i = 0; i < n; i++)
             {
-                strengths[i] = double.IsNaN(xz[i] = XFunc(Nodes[i], i, nodes)) ? 0 : strengthFunc(nodes[i], i, nodes);
+                strengths[i] = double.IsNaN(xz[i] = XFunc(Nodes[i], i, Nodes)) ? 0 : strengthFunc(Nodes[i], i, Nodes);
             }
         }
     }

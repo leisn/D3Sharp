@@ -6,6 +6,11 @@ namespace D3Sharp.Force
 {
     public interface IRandom
     {
+        public static double Jiggle(IRandom random)
+        {
+            return (random.Next() - 0.5) * 1e-6;
+        }
+
         /// <summary>
         /// 返回0-1之间的小数
         /// </summary>
@@ -28,7 +33,6 @@ namespace D3Sharp.Force
         public double Next()
         {
             seed = (a * seed + c) % m;
-            System.Diagnostics.Debug.WriteLine(seed);
             return seed / m;
         }
     }

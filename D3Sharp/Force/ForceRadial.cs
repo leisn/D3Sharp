@@ -15,64 +15,77 @@ namespace D3Sharp.Force
         public double X { get; set; } = 0;
         public double Y { get; set; } = 0;
 
+        #region Constructors
         public ForceRadial(ForceDelegate<TNode> radiusFunc = null, double x = 0, double y = 0)
         {
-            strengthFunc = (___, _, __) => { return 0.1; };
+            this.radiusFunc = radiusFunc == null ? defaultRadius : radiusFunc;
             this.X = x;
             this.Y = y;
-
-            if (radiusFunc != null)
-                this.radiusFunc = radiusFunc;
-            else
-                this.radiusFunc = (_, __, ___) => { return 0; };
+            strengthFunc = defaultStrength;
         }
 
         public ForceRadial(double radius, double x = 0, double y = 0)
-            : this((___, _, __) => { return radius; }, x, y)
         {
+            this.SetRadius(radius);
+            this.X = x;
+            this.Y = y;
+            strengthFunc = defaultStrength;
         }
+        #endregion
 
-
-        public ForceDelegate<TNode> RadiusFunc => this.radiusFunc;
-
-        public double Radius
-        {
-            set
-            {
-                this.radiusFunc = (_, __, ___) => { return value; };
-                Initialize();
-            }
-        }
-
+        #region func properties
+        double defaultStrength(TNode node, int i, List<TNode> nodes) => 0.1;
         public ForceDelegate<TNode> StrengthFunc
         {
             get => this.strengthFunc;
             set
             {
-                this.strengthFunc = value;
+                this.strengthFunc = value == null ? defaultStrength : value;
                 Initialize();
             }
         }
+        public ForceRadial<TNode> SetStrength(double strength)
+        {
+            this.strengthFunc = (_, __, ___) => strength;
+            return this;
+        }
+
+        double defaultRadius(TNode node, int i, List<TNode> nodes) => 0;
+        public ForceDelegate<TNode> RadiusFunc
+        {
+            get => this.radiusFunc;
+            set
+            {
+                this.radiusFunc = value == null ? defaultRadius : value;
+                Initialize();
+            }
+        }
+        public ForceRadial<TNode> SetRadius(double radius)
+        {
+            this.radiusFunc = (_, __, ___) => radius;
+            return this;
+        }
+        #endregion
 
         protected override void Initialize()
         {
-            if (nodes.IsNullOrEmpty()) return;
-            int n = nodes.Count;
+            if (Nodes.IsNullOrEmpty()) return;
+            int n = Nodes.Count;
             strengths = new double[n];
             radiuses = new double[n];
             for (int i = 0; i < n; i++)
             {
-                radiuses[i] = radiusFunc(nodes[i], i, nodes);
-                strengths[i] = double.IsNaN(radiuses[i]) ? 0 : strengthFunc(nodes[i], i, nodes);
+                radiuses[i] = radiusFunc(Nodes[i], i, Nodes);
+                strengths[i] = double.IsNaN(radiuses[i]) ? 0 : strengthFunc(Nodes[i], i, Nodes);
             }
         }
 
         public override Force<TNode> UseForce(double alpha = 0)
         {
             TNode node;
-            for (int i = 0, n = nodes.Count; i < n; i++)
+            for (int i = 0, n = Nodes.Count; i < n; i++)
             {
-                node = nodes[i];
+                node = Nodes[i];
                 var dx = node.X - X;
                 if (dx == 0) dx = 1e-6;
                 var dy = node.Y - Y;

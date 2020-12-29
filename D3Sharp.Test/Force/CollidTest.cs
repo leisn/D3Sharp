@@ -35,7 +35,7 @@ namespace D3Sharp.Test.Force
                    Math.Round(nodes[2].X, 10));
             Assert.AreEqual(Math.Round(-15.750847141167634, 10),
                    Math.Round(nodes[2].Y, 10));
-            collide.Radius = 100;
+            collide.SetRadius(100);
             f.Tick(10);
             Assert.AreEqual(Math.Round(174.08616723117228, 10),
                    Math.Round(nodes[0].X, 10));
@@ -85,7 +85,7 @@ namespace D3Sharp.Test.Force
             Assert.AreEqual(0, nodes[0].Fy);
             Assert.AreEqual(0, nodes[0].Vx);
             Assert.AreEqual(0, nodes[0].Vy);
-            collide.Radius = 100;
+            collide.SetRadius(100);
             f.Tick(10);
             Assert.AreEqual(0, nodes[0].X);
             Assert.AreEqual(0, nodes[0].Y);
