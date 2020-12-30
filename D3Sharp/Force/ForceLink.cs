@@ -5,7 +5,7 @@ using System.Text;
 namespace D3Sharp.Force
 {
     public class ForceLink<TNode, TLink> : Force<TNode>
-        where TNode : Node
+        where TNode : INode
         where TLink : Link
     {
         private List<TLink> _links;
@@ -108,7 +108,7 @@ namespace D3Sharp.Force
         #endregion
 
         #region func properties
-        private double defaultStrength(TLink link, int i = 0, List<TLink> links = null)
+        private double defaultStrength(TLink link, int i = 0, IList<TLink> links = null)
         {
             return 1d / Math.Min(count[((TNode)link.Source).Index], count[((TNode)link.Target).Index]);
         }
@@ -127,7 +127,7 @@ namespace D3Sharp.Force
             return this;
         }
 
-        private double defaultDistance(TLink link, int i = 0, List<TLink> links = null) => 30;
+        private double defaultDistance(TLink link, int i = 0, IList<TLink> links = null) => 30;
         public ForceDelegate<TLink> DistanceFunc
         {
             get => this.distance;
@@ -194,6 +194,21 @@ namespace D3Sharp.Force
                 }
             }
             return this;
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                strength = null;
+                distance = null;
+            }
+            count = null;
+            strengths = null;
+            distances = null;
+            bias = null;
+            _links = null;
+            base.Dispose(disposing);
         }
     }
 }

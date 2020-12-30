@@ -4,34 +4,70 @@ using System.Text;
 
 namespace D3Sharp.Force
 {
-    public class Node : QuadTree.IQuadData
+    public interface INode : QuadTree.IQuadData
     {
         /// <summary>
         /// the node’s zero-based index into nodes
         /// </summary>
         public int Index { get; set; }
         /// <summary>
-        /// the node’s fixed x-position
+        /// the node’s fixed x-position, by default set to double.NaN
+        /// </summary>
+        public double Fx { get; set; }
+        /// <summary>
+        /// the node’s fixed y-position, by default set to double.NaN
+        /// </summary>
+        public double Fy { get; set; }
+        /// <summary>
+        /// the node’s current x-velocity, by default set to double.NaN
+        /// </summary>
+        public double Vx { get; set; }
+        /// <summary>
+        /// the node’s current y-velocity, by default set to double.NaN
+        /// </summary>
+        public double Vy { get; set; }
+
+        /// <summary>
+        /// the node’s current x-position, by default set to double.NaN
+        /// </summary>
+        public new double X { get; set; }
+        /// <summary>
+        /// the node’s current y-position, by default set to double.NaN
+        /// </summary>
+        public new double Y { get; set; }
+    }
+
+    /// <summary>
+    /// Simple implementation for <see cref="INode"/>
+    /// </summary>
+    public class Node : INode
+    {
+        /// <summary>
+        /// the node’s zero-based index into nodes
+        /// </summary>
+        public int Index { get; set; }
+        /// <summary>
+        /// the node’s fixed x-position, by default set to double.NaN
         /// </summary>
         public double Fx { get; set; } = double.NaN;
         /// <summary>
-        /// the node’s fixed y-position
+        /// the node’s fixed y-position, by default set to double.NaN
         /// </summary>
         public double Fy { get; set; } = double.NaN;
         /// <summary>
-        /// the node’s current x-velocity
+        /// the node’s current x-velocity, by default set to double.NaN
         /// </summary>
         public double Vx { get; set; } = double.NaN;
         /// <summary>
-        /// the node’s current y-velocity
+        /// the node’s current y-velocity, by default set to double.NaN
         /// </summary>
         public double Vy { get; set; } = double.NaN;
         /// <summary>
-        /// the node’s current x-position
+        /// the node’s current x-position, by default set to double.NaN
         /// </summary>
         public virtual double X { get; set; } = double.NaN;
         /// <summary>
-        /// the node’s current y-position
+        /// the node’s current y-position, by default set to double.NaN
         /// </summary>
         public virtual double Y { get; set; } = double.NaN;
 

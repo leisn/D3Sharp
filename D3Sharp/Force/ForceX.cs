@@ -4,7 +4,7 @@ using System.Text;
 
 namespace D3Sharp.Force
 {
-    public class ForceX<TNode> : Force<TNode> where TNode : Node
+    public class ForceX<TNode> : Force<TNode> where TNode : INode
     {
         double[] strengths, xz;
         ForceDelegate<TNode> xFunc;
@@ -37,7 +37,7 @@ namespace D3Sharp.Force
         }
 
         #region func properties
-        double defaultStrength(TNode node, int i, List<TNode> nodes) => 0.1;
+        double defaultStrength(TNode node, int i, IList<TNode> nodes) => 0.1;
         public ForceDelegate<TNode> StrengthFunc
         {
             get => this.strengthFunc;
@@ -53,7 +53,7 @@ namespace D3Sharp.Force
             return this;
         }
 
-        double defaultX(TNode node, int i, List<TNode> nodes) => 0;
+        double defaultX(TNode node, int i, IList<TNode> nodes) => 0;
         public ForceDelegate<TNode> XFunc
         {
             get => this.xFunc;
@@ -79,6 +79,18 @@ namespace D3Sharp.Force
                 node.Vx += (xz[i] - node.X) * strengths[i] * alpha;
             }
             return this;
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                xFunc = null;
+                strengthFunc = null;
+            }
+            strengths = null;
+            xz = null;
+            base.Dispose(disposing);
         }
     }
 }

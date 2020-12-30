@@ -16,10 +16,10 @@ namespace D3Sharp.Force
             get => source;
             set
             {
-                if (value is int || value is Node)
+                if (value is int || value is INode)
                     this.source = value;
                 else
-                    throw new ArrayTypeMismatchException("int or Node only");
+                    throw new ArrayTypeMismatchException("int or INode only");
             }
         }
 
@@ -28,10 +28,10 @@ namespace D3Sharp.Force
             get => target;
             set
             {
-                if (value is int || value is Node)
+                if (value is int || value is INode)
                     this.target = value;
                 else
-                    throw new ArrayTypeMismatchException("int or Node only");
+                    throw new ArrayTypeMismatchException("int or INode only");
             }
         }
     }

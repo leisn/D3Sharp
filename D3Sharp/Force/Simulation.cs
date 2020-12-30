@@ -6,13 +6,36 @@ using System.Timers;
 
 namespace D3Sharp.Force
 {
-    public delegate double ForceDelegate<T>(T t = default, int i = 0, List<T> list = null);
+    public delegate double ForceDelegate<T>(T t = default, int i = 0, IList<T> list = null);
 
-    public class Simulation<TNode> where TNode : Node
+    public enum SimulationState
     {
-        //static Simulation<TNode> simulation;
-        //public static Simulation<TNode> CreateSimulation => simulation ??= new Simulation<TNode>(null);
+        Starting = 0,
+        BeforeTick = 2,
+        Ticked = 4,
+        Stopping = 6,
+        End = 8
+    }
+
+    public class SimulationEventArgs : EventArgs
+    {
+        public SimulationState State { get; }
+
+        public SimulationEventArgs(SimulationState state)
+        {
+            this.State = state;
+        }
+    }
+
+    public class Simulation<TNode> : IDisposable where TNode : INode
+    {
         #region fields
+        Dictionary<string, Force<TNode>> _forces;
+        IList<TNode> _nodes;
+        IRandom _randomSource;
+
+        Timer stepper;
+        private int fps = 30;
         const double initialRadius = 10;
         readonly double initialAngle = Math.PI * (3 - Math.Sqrt(5));
         double velocityDecayReve = 0.6;
@@ -21,15 +44,7 @@ namespace D3Sharp.Force
         public double AlphaMin { get; set; } = 0.001;
         public double AlphaDecay { get; set; }
         public double AlphaTarget { get; set; } = 0;
-        private int fps = 30;
-
-
-        List<TNode> _nodes;
-        IRandom _randomSource;
-        Dictionary<string, Force<TNode>> Forces { get; }
-        Timer stepper;
-
-        public event EventHandler<string> Events;
+        public event EventHandler<SimulationEventArgs> Events;
         #endregion
 
         #region properties
@@ -44,7 +59,7 @@ namespace D3Sharp.Force
                 initializeForces();
             }
         }
-        public List<TNode> Nodes
+        public IList<TNode> Nodes
         {
             get => this._nodes;
             set
@@ -79,11 +94,10 @@ namespace D3Sharp.Force
             AlphaDecay = 1 - Math.Pow(AlphaMin, 1d / 300);
             stepper = new Timer(1000 / fps);
             stepper.Elapsed += step;
-            Forces = new Dictionary<string, Force<TNode>>();
+            _forces = new Dictionary<string, Force<TNode>>();
             this._randomSource = random ?? new Lcg();
             this._nodes = nodes ?? new List<TNode>();
             initializeNodes();
-            //stepper.Start();
         }
 
         public TNode Find(double x, double y, double radius = double.NaN)
@@ -110,27 +124,11 @@ namespace D3Sharp.Force
             return closest;
         }
 
-        #region private methods
-        private object obj = new object();
-        private void step(object sender, ElapsedEventArgs e)
-        {
-            //var thread = System.Threading.Thread.CurrentThread;
-            //Debug.WriteLine($"Tick start on Thead{{{thread.ManagedThreadId}}}");
-            lock (obj)
-            {
-                Tick();
-                Events?.Invoke(this, "tick");
-                if (Alpha < AlphaMin)
-                {
-                    Stop();
-                    Events?.Invoke(this, "end");
-                }
-            }
-            //Debug.WriteLine($"Tick stop on Thead{{{thread.ManagedThreadId}}}");
-        }
-
+        #region initializes
         private void initializeNodes()
         {
+            if (Nodes.IsNullOrEmpty())
+                return;
             TNode node;
             for (int i = 0, n = Nodes.Count; i < n; ++i)
             {
@@ -160,9 +158,9 @@ namespace D3Sharp.Force
 
         private void initializeForces()
         {
-            foreach (var item in Forces)
+            foreach (var item in _forces.Values)
             {
-                initializeForce(item.Value);
+                initializeForce(item);
             }
         }
         #endregion
@@ -199,7 +197,7 @@ namespace D3Sharp.Force
             return this;
         }
 
-        public Simulation<TNode> SetNodes(List<TNode> nodes)
+        public Simulation<TNode> SetNodes(IList<TNode> nodes)
         {
             this.Nodes = nodes;
             return this;
@@ -216,48 +214,39 @@ namespace D3Sharp.Force
         {
             if (name == null || force == null)
                 throw new ArgumentNullException();
-            Forces.Add(name, initializeForce(force));
+            _forces.Add(name, initializeForce(force));
             return this;
         }
         public Simulation<TNode> RemoveForce(string name)
         {
-            Forces.Remove(name);
+            _forces.Remove(name);
             return this;
         }
         public Force<TNode> GetForce(string name)
         {
-            return Forces[name];
+            return _forces[name];
         }
         #endregion
 
-        #region timer
-        public Simulation<TNode> Stop()
-        {
-            Events?.Invoke(this, "stopping");
-            stepper.Stop();
-            return this;
-        }
+        #region timer events 
+        private object obj = new object();
 
-        public Simulation<TNode> Start()
+        private void step(object sender, ElapsedEventArgs e)
         {
-            Events?.Invoke(this, "starting");
-            stepper.Start();
-            return this;
-        }
-        #endregion
-
-        #region events 
-        public Simulation<TNode> On(string name, Action action)
-        {
-            if (action != null)
+            //var thread = System.Threading.Thread.CurrentThread;
+            //Debug.WriteLine($"Tick start on Thead{{{thread.ManagedThreadId}}}");
+            lock (obj)//work one by one
             {
-                Events += (sender, args) =>
+                Events?.Invoke(this, new SimulationEventArgs(SimulationState.BeforeTick));
+                Tick();
+                Events?.Invoke(this, new SimulationEventArgs(SimulationState.Ticked));
+                if (Alpha < AlphaMin)
                 {
-                    if (name == args)
-                        action?.Invoke();
-                };
+                    Stop();
+                    Events?.Invoke(this, new SimulationEventArgs(SimulationState.End));
+                }
             }
-            return this;
+            //Debug.WriteLine($"Tick stop on Thead{{{thread.ManagedThreadId}}}");
         }
 
         public Simulation<TNode> Tick(int iterations = 1)
@@ -267,7 +256,7 @@ namespace D3Sharp.Force
             for (int k = 0; k < iterations; k++)
             {
                 Alpha += (AlphaTarget - Alpha) * AlphaDecay;
-                foreach (var force in Forces)
+                foreach (var force in _forces)
                 {
                     force.Value.UseForce(Alpha);
                 }
@@ -295,6 +284,63 @@ namespace D3Sharp.Force
             }
 
             return this;
+        }
+
+        public Simulation<TNode> Stop()
+        {
+            Events?.Invoke(this, new SimulationEventArgs(SimulationState.Stopping));
+            stepper.Stop();
+            return this;
+        }
+
+        public Simulation<TNode> Start()
+        {
+            Events?.Invoke(this, new SimulationEventArgs(SimulationState.Starting));
+            stepper.Start();
+            return this;
+        }
+
+        public Simulation<TNode> On(SimulationState state, Action<Simulation<TNode>> action)
+        {
+            if (action != null)
+            {
+                Events += (sender, args) =>
+                {
+                    if (state == args.State)
+                        action?.Invoke(this);
+                };
+            }
+            return this;
+        }
+        #endregion
+
+        #region dispose
+        private bool disposedValue;
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    this.Events = null;
+                    this._randomSource = null;
+                    this.obj = null;
+                }
+                this._nodes = null;
+                this._forces = null;
+                if (stepper != null)
+                {
+                    this.stepper.Dispose();
+                    this.stepper = null;
+                }
+                disposedValue = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
         #endregion
     }

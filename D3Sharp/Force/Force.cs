@@ -4,12 +4,13 @@ using System.Text;
 
 namespace D3Sharp.Force
 {
-    public abstract class Force<TNode> where TNode : Node
+    public abstract class Force<TNode> : IDisposable where TNode : INode
     {
-        private List<TNode> nodes;
+        private IList<TNode> nodes;
         private IRandom random;
 
-        public List<TNode> Nodes
+
+        public IList<TNode> Nodes
         {
             get => nodes;
             set { this.nodes = value; Initialize(); }
@@ -25,7 +26,7 @@ namespace D3Sharp.Force
 
         protected abstract void Initialize();
 
-        public Force<TNode> Initialize(List<TNode> nodes, IRandom randomSource)
+        public Force<TNode> Initialize(IList<TNode> nodes, IRandom randomSource)
         {
             this.nodes = nodes;
             this.random = randomSource;
@@ -35,5 +36,26 @@ namespace D3Sharp.Force
 
         public abstract Force<TNode> UseForce(double alpha = 0);
 
+        #region dispose
+        private bool disposedValue;
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    this.RandomSource = null;
+                }
+                this.nodes = null;
+                disposedValue = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
+        #endregion
     }
 }

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace D3Sharp.Force
 {
-    public class ForceRadial<TNode> : Force<TNode> where TNode : Node
+    public class ForceRadial<TNode> : Force<TNode> where TNode : INode
     {
 
         ForceDelegate<TNode> strengthFunc;
@@ -47,7 +47,7 @@ namespace D3Sharp.Force
         }
 
         #region func properties
-        double defaultStrength(TNode node, int i, List<TNode> nodes) => 0.1;
+        double defaultStrength(TNode node, int i, IList<TNode> nodes) => 0.1;
         public ForceDelegate<TNode> StrengthFunc
         {
             get => this.strengthFunc;
@@ -63,7 +63,7 @@ namespace D3Sharp.Force
             return this;
         }
 
-        double defaultRadius(TNode node, int i, List<TNode> nodes) => 0;
+        double defaultRadius(TNode node, int i, IList<TNode> nodes) => 0;
         public ForceDelegate<TNode> RadiusFunc
         {
             get => this.radiusFunc;
@@ -110,6 +110,18 @@ namespace D3Sharp.Force
             }
 
             return this;
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                strengthFunc = null;
+                radiusFunc = null;
+            }
+            strengths = null;
+            radiuses = null;
+            base.Dispose(disposing);
         }
     }
 }

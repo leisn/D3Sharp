@@ -6,7 +6,7 @@ using D3Sharp.QuadTree;
 
 namespace D3Sharp.Force
 {
-    public class ForceCollide<TNode> : Force<TNode> where TNode : Node
+    public class ForceCollide<TNode> : Force<TNode> where TNode : INode
     {
         #region inner class
         class QtCNode : QuadTree.QuadNode<TNode>
@@ -47,7 +47,7 @@ namespace D3Sharp.Force
         }
 
         #region func properties
-        protected double defaultRadius(TNode node, int i, List<TNode> nodes) => 1;
+        protected double defaultRadius(TNode node, int i, IList<TNode> nodes) => 1;
         public ForceDelegate<TNode> RadiusFunc
         {
             get => this.radiusFunc;
@@ -162,5 +162,13 @@ namespace D3Sharp.Force
             return this;
         }
         #endregion
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+                radiusFunc = null;
+            Radii = null;
+            base.Dispose(disposing);
+        }
     }
 }

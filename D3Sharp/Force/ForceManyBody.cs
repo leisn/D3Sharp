@@ -6,7 +6,7 @@ using D3Sharp.QuadTree;
 
 namespace D3Sharp.Force
 {
-    public class ForceManyBody<TNode> : Force<TNode> where TNode : Node
+    public class ForceManyBody<TNode> : Force<TNode> where TNode : INode
     {
         #region inner class
         class QtMbNode : QuadNode<TNode>
@@ -45,7 +45,7 @@ namespace D3Sharp.Force
         }
 
         #region func properties
-        private double defaultStrength(TNode node, int i, List<TNode> nodes) => -30;
+        private double defaultStrength(TNode node, int i, IList<TNode> nodes) => -30;
         public ForceDelegate<TNode> StrengthFunc
         {
             get => this.strength;
@@ -172,7 +172,8 @@ namespace D3Sharp.Force
             }
             else if (quad.Length > 0 || l >= distanceMax2)
                 return false;
-            if (quad.Data != node || quad.Next != null)
+           
+            if (!Equals(quad.Data, node) || quad.Next != null)
             {
                 if (x == 0)
                 {
@@ -188,7 +189,7 @@ namespace D3Sharp.Force
             }
             do
             {
-                if (quad.Data != node)
+                if (!Equals(quad.Data, node))
                 {
                     w = strengths[quad.Data.Index] * alpha / l;
                     node.Vx += x * w;
@@ -198,5 +199,18 @@ namespace D3Sharp.Force
             return false;
         }
         #endregion
+
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                strength = null;
+                node = default;
+            }
+            strengths = null;
+            base.Dispose(disposing);
+        }
+
     }
 }

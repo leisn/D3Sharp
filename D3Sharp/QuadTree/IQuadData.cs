@@ -6,7 +6,13 @@ namespace D3Sharp.QuadTree
 {
     public interface IQuadData
     {
-        double X { get; set; }
-        double Y { get; set; }
+        /// <summary>
+        /// the node’s current x-position, by default set to double.NaN
+        /// </summary>
+        public double X { get; }
+        /// <summary>
+        /// the node’s current y-position, by default set to double.NaN
+        /// </summary>
+        public double Y { get; }
     }
 }

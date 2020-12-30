@@ -4,7 +4,7 @@ using System.Text;
 
 namespace D3Sharp.Force
 {
-    public class ForceCenter<TNode> : Force<TNode> where TNode : Node
+    public class ForceCenter<TNode> : Force<TNode> where TNode : INode
     {
         public double Cx { get; set; }
         public double Cy { get; set; }
