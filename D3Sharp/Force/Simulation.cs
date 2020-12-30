@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using System.Timers;
 
@@ -20,13 +21,14 @@ namespace D3Sharp.Force
         public double AlphaMin { get; set; } = 0.001;
         public double AlphaDecay { get; set; }
         public double AlphaTarget { get; set; } = 0;
+        private int fps = 30;
+
 
         List<TNode> _nodes;
         IRandom _randomSource;
         Dictionary<string, Force<TNode>> Forces { get; }
         Timer stepper;
 
-        public int RefreshRate { get; }
         public event EventHandler<string> Events;
         #endregion
 
@@ -42,7 +44,6 @@ namespace D3Sharp.Force
                 initializeForces();
             }
         }
-
         public List<TNode> Nodes
         {
             get => this._nodes;
@@ -53,7 +54,6 @@ namespace D3Sharp.Force
                 initializeForces();
             }
         }
-
         public double VelocityDecay
         {
             get => 1 - velocityDecayReve;
@@ -62,13 +62,22 @@ namespace D3Sharp.Force
                 this.velocityDecayReve = 1 - value;
             }
         }
+        public int FPS
+        {
+            get => this.fps;
+            set
+            {
+                this.fps = value;
+                stepper.Interval = 1000 / value;
+            }
+        }
         #endregion
 
-        public Simulation(List<TNode> nodes = null, IRandom random = null, int refreshRate = 30)
+        public Simulation(List<TNode> nodes = null, IRandom random = null, int fps = 30)
         {
-            this.RefreshRate = refreshRate;
+            this.fps = fps;
             AlphaDecay = 1 - Math.Pow(AlphaMin, 1d / 300);
-            stepper = new Timer(1000 / refreshRate);
+            stepper = new Timer(1000 / fps);
             stepper.Elapsed += step;
             Forces = new Dictionary<string, Force<TNode>>();
             this._randomSource = random ?? new Lcg();
@@ -77,10 +86,36 @@ namespace D3Sharp.Force
             //stepper.Start();
         }
 
+        public TNode Find(double x, double y, double radius = double.NaN)
+        {
+            double dx, dy, d2;
+            TNode node;
+            TNode closest = default;
+            if (double.IsNaN(radius))
+                radius = double.PositiveInfinity;
+            else
+                radius *= radius;
+            for (int i = 0; i < Nodes.Count; i++)
+            {
+                node = Nodes[i];
+                dx = x - node.X;
+                dy = y - node.Y;
+                d2 = dx * dx + dy * dy;
+                if (d2 < radius)
+                {
+                    closest = node;
+                    radius = d2;
+                }
+            }
+            return closest;
+        }
+
         #region private methods
         private object obj = new object();
         private void step(object sender, ElapsedEventArgs e)
         {
+            //var thread = System.Threading.Thread.CurrentThread;
+            //Debug.WriteLine($"Tick start on Thead{{{thread.ManagedThreadId}}}");
             lock (obj)
             {
                 Tick();
@@ -91,6 +126,7 @@ namespace D3Sharp.Force
                     Events?.Invoke(this, "end");
                 }
             }
+            //Debug.WriteLine($"Tick stop on Thead{{{thread.ManagedThreadId}}}");
         }
 
         private void initializeNodes()
@@ -131,12 +167,51 @@ namespace D3Sharp.Force
         }
         #endregion
 
+        #region setters
+        public Simulation<TNode> SetVelocityDecay(double velocityDecay)
+        {
+            this.VelocityDecay = velocityDecay;
+            return this;
+        }
+        public Simulation<TNode> SetAlpha(double alpha)
+        {
+            this.Alpha = alpha;
+            return this;
+        }
+        public Simulation<TNode> SetAlphaMin(double alphaMin)
+        {
+            this.AlphaMin = alphaMin;
+            return this;
+        }
+        public Simulation<TNode> SetAlphaDecay(double alphaDecay)
+        {
+            this.AlphaDecay = alphaDecay;
+            return this;
+        }
+        public Simulation<TNode> SetAlphaTarget(double alphaTarget)
+        {
+            this.AlphaTarget = alphaTarget;
+            return this;
+        }
+        public Simulation<TNode> SetFPS(int fps)
+        {
+            this.FPS = fps;
+            return this;
+        }
+
         public Simulation<TNode> SetNodes(List<TNode> nodes)
         {
             this.Nodes = nodes;
             return this;
         }
+        public Simulation<TNode> SetRandomSource(IRandom randomSource)
+        {
+            this.RandomSource = randomSource;
+            return this;
+        }
+        #endregion
 
+        #region forces
         public Simulation<TNode> AddForce(string name, Force<TNode> force)
         {
             if (name == null || force == null)
@@ -152,6 +227,37 @@ namespace D3Sharp.Force
         public Force<TNode> GetForce(string name)
         {
             return Forces[name];
+        }
+        #endregion
+
+        #region timer
+        public Simulation<TNode> Stop()
+        {
+            Events?.Invoke(this, "stopping");
+            stepper.Stop();
+            return this;
+        }
+
+        public Simulation<TNode> Start()
+        {
+            Events?.Invoke(this, "starting");
+            stepper.Start();
+            return this;
+        }
+        #endregion
+
+        #region events 
+        public Simulation<TNode> On(string name, Action action)
+        {
+            if (action != null)
+            {
+                Events += (sender, args) =>
+                {
+                    if (name == args)
+                        action?.Invoke();
+                };
+            }
+            return this;
         }
 
         public Simulation<TNode> Tick(int iterations = 1)
@@ -190,56 +296,6 @@ namespace D3Sharp.Force
 
             return this;
         }
-
-        public TNode Find(double x, double y, double radius = double.NaN)
-        {
-            double dx, dy, d2;
-            TNode node;
-            TNode closest = default;
-            if (double.IsNaN(radius))
-                radius = double.PositiveInfinity;
-            else
-                radius *= radius;
-            for (int i = 0; i < Nodes.Count; i++)
-            {
-                node = Nodes[i];
-                dx = x - node.X;
-                dy = y - node.Y;
-                d2 = dx * dx + dy * dy;
-                if (d2 < radius)
-                {
-                    closest = node;
-                    radius = d2;
-                }
-            }
-            return closest;
-        }
-
-        public Simulation<TNode> Stop()
-        {
-            Events?.Invoke(this, "stopping");
-            stepper.Stop();
-            return this;
-        }
-
-        public Simulation<TNode> Start()
-        {
-            Events?.Invoke(this, "starting");
-            stepper.Start();
-            return this;
-        }
-
-        public Simulation<TNode> On(string name, Action action)
-        {
-            if (action != null)
-            {
-                Events += (sender, args) =>
-                {
-                    if (name == args)
-                        action?.Invoke();
-                };
-            }
-            return this;
-        }
+        #endregion
     }
 }

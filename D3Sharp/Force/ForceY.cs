@@ -10,18 +10,31 @@ namespace D3Sharp.Force
         ForceDelegate<TNode> yFunc;
         ForceDelegate<TNode> strengthFunc;
 
+        #region Constructors
         public ForceY(ForceDelegate<TNode> yFunc = null)
         {
             strengthFunc = defaultStrength;
             this.yFunc = yFunc == null ? defaultY : yFunc;
         }
 
-        public ForceY(double y) 
+        public ForceY(double y)
         {
             strengthFunc = defaultStrength;
             this.SetY(y);
         }
+        #endregion
 
+        protected override void Initialize()
+        {
+            if (Nodes.IsNullOrEmpty()) return;
+            int n = Nodes.Count;
+            strengths = new double[n];
+            yz = new double[n];
+            for (int i = 0; i < n; i++)
+            {
+                strengths[i] = double.IsNaN(yz[i] = yFunc(Nodes[i], i, Nodes)) ? 0 : strengthFunc(Nodes[i], i, Nodes);
+            }
+        }
 
         #region func properties
         double defaultStrength(TNode node, int i, List<TNode> nodes) => 0.1;
@@ -66,18 +79,6 @@ namespace D3Sharp.Force
                 node.Vy += (yz[i] - node.Y) * strengths[i] * alpha;
             }
             return this;
-        }
-
-        protected override void Initialize()
-        {
-            if (Nodes.IsNullOrEmpty()) return;
-            int n = Nodes.Count;
-            strengths = new double[n];
-            yz = new double[n];
-            for (int i = 0; i < n; i++)
-            {
-                strengths[i] = double.IsNaN(yz[i] = yFunc(Nodes[i], i, Nodes)) ? 0 : strengthFunc(Nodes[i], i, Nodes);
-            }
         }
     }
 }

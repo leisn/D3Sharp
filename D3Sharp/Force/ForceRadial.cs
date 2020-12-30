@@ -33,6 +33,19 @@ namespace D3Sharp.Force
         }
         #endregion
 
+        protected override void Initialize()
+        {
+            if (Nodes.IsNullOrEmpty()) return;
+            int n = Nodes.Count;
+            strengths = new double[n];
+            radiuses = new double[n];
+            for (int i = 0; i < n; i++)
+            {
+                radiuses[i] = radiusFunc(Nodes[i], i, Nodes);
+                strengths[i] = double.IsNaN(radiuses[i]) ? 0 : strengthFunc(Nodes[i], i, Nodes);
+            }
+        }
+
         #region func properties
         double defaultStrength(TNode node, int i, List<TNode> nodes) => 0.1;
         public ForceDelegate<TNode> StrengthFunc
@@ -67,18 +80,18 @@ namespace D3Sharp.Force
         }
         #endregion
 
-        protected override void Initialize()
+        #region setters
+        public ForceRadial<TNode> SetRadialX(double x)
         {
-            if (Nodes.IsNullOrEmpty()) return;
-            int n = Nodes.Count;
-            strengths = new double[n];
-            radiuses = new double[n];
-            for (int i = 0; i < n; i++)
-            {
-                radiuses[i] = radiusFunc(Nodes[i], i, Nodes);
-                strengths[i] = double.IsNaN(radiuses[i]) ? 0 : strengthFunc(Nodes[i], i, Nodes);
-            }
+            this.X = x;
+            return this;
         }
+        public ForceRadial<TNode> SetRadialY(int y)
+        {
+            this.Y = y;
+            return this;
+        }
+        #endregion
 
         public override Force<TNode> UseForce(double alpha = 0)
         {

@@ -32,6 +32,20 @@ namespace D3Sharp.Force
         }
         #endregion
 
+        protected override void Initialize()
+        {
+            if (Nodes == null)
+                return;
+            var n = Nodes.Count;
+            Radii = new double[n];
+            TNode node;
+            for (int i = 0; i < n; i++)
+            {
+                node = Nodes[i];
+                Radii[node.Index] = RadiusFunc(node, i, Nodes);
+            }
+        }
+
         #region func properties
         protected double defaultRadius(TNode node, int i, List<TNode> nodes) => 1;
         public ForceDelegate<TNode> RadiusFunc
@@ -50,6 +64,7 @@ namespace D3Sharp.Force
         }
         #endregion
 
+        #region setters
         public ForceCollide<TNode> SetStrength(double strength)
         {
             this.Strength = strength;
@@ -60,21 +75,9 @@ namespace D3Sharp.Force
             this.Iterations = iterations;
             return this;
         }
+        #endregion
 
-        protected override void Initialize()
-        {
-            if (Nodes == null)
-                return;
-            var n = Nodes.Count;
-            Radii = new double[n];
-            TNode node;
-            for (int i = 0; i < n; i++)
-            {
-                node = Nodes[i];
-                Radii[node.Index] = RadiusFunc(node, i, Nodes);
-            }
-        }
-
+        #region use force
         double getX(TNode d) => d.X + d.Vx;
         double getY(TNode d) => d.Y + d.Vy;
 
@@ -158,5 +161,6 @@ namespace D3Sharp.Force
 
             return this;
         }
+        #endregion
     }
 }

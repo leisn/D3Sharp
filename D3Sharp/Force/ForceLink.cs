@@ -34,61 +34,7 @@ namespace D3Sharp.Force
         }
         #endregion
 
-        public List<TLink> Links
-        {
-            get => _links;
-            set
-            {
-                this._links = value;
-                Initialize();
-            }
-        }
-
-        #region func properties
-        private double defaultStrength(TLink link, int i = 0, List<TLink> links = null)
-        {
-            return 1d / Math.Min(count[((TNode)link.Source).Index], count[((TNode)link.Target).Index]);
-        }
-        public ForceDelegate<TLink> StrengthFunc
-        {
-            get => this.strength;
-            set
-            {
-                this.strength = value == null ? defaultStrength : value;
-                initializeStrength();
-            }
-        }
-        public ForceLink<TNode, TLink> SetStrength(double strength)
-        {
-            this.StrengthFunc = (_, __, ___) => strength;
-            return this;
-        }
-
-        private double defaultDistance(TLink link, int i = 0, List<TLink> links = null) => 30;
-        public ForceDelegate<TLink> DistanceFunc
-        {
-            get => this.distance;
-            set
-            {
-                this.distance = value == null ? defaultDistance : value; ;
-                initializeDistance();
-            }
-        }
-        public ForceLink<TNode, TLink> SetDistance(double distance)
-        {
-            this.DistanceFunc = (_, __, ___) => distance;
-            return this;
-        }
-        #endregion
-
-        private TNode find(Dictionary<int, TNode> map, int nodeId)
-        {
-            TNode node;
-            if (map.TryGetValue(nodeId, out node))
-                return node;
-            throw new ArgumentOutOfRangeException("Node not found: " + nodeId);
-        }
-
+        #region initializes
         protected override void Initialize()
         {
             if (Nodes.IsNullOrEmpty())
@@ -152,6 +98,74 @@ namespace D3Sharp.Force
             }
         }
 
+        private TNode find(Dictionary<int, TNode> map, int nodeId)
+        {
+            TNode node;
+            if (map.TryGetValue(nodeId, out node))
+                return node;
+            throw new ArgumentOutOfRangeException("Node not found: " + nodeId);
+        }
+        #endregion
+
+        #region func properties
+        private double defaultStrength(TLink link, int i = 0, List<TLink> links = null)
+        {
+            return 1d / Math.Min(count[((TNode)link.Source).Index], count[((TNode)link.Target).Index]);
+        }
+        public ForceDelegate<TLink> StrengthFunc
+        {
+            get => this.strength;
+            set
+            {
+                this.strength = value == null ? defaultStrength : value;
+                initializeStrength();
+            }
+        }
+        public ForceLink<TNode, TLink> SetStrength(double strength)
+        {
+            this.StrengthFunc = (_, __, ___) => strength;
+            return this;
+        }
+
+        private double defaultDistance(TLink link, int i = 0, List<TLink> links = null) => 30;
+        public ForceDelegate<TLink> DistanceFunc
+        {
+            get => this.distance;
+            set
+            {
+                this.distance = value == null ? defaultDistance : value; ;
+                initializeDistance();
+            }
+        }
+        public ForceLink<TNode, TLink> SetDistance(double distance)
+        {
+            this.DistanceFunc = (_, __, ___) => distance;
+            return this;
+        }
+        #endregion
+
+        #region setters
+        public List<TLink> Links
+        {
+            get => _links;
+            set
+            {
+                this._links = value;
+                Initialize();
+            }
+        }
+        public ForceLink<TNode, TLink> SetLinks(List<TLink> links)
+        {
+            this.Links = links;
+            return this;
+        }
+        public ForceLink<TNode, TLink> SetIterations(int iterations)
+        {
+            this.Iterations = iterations;
+            return this;
+        }
+        #endregion
+
         public override Force<TNode> UseForce(double alpha = 0)
         {
             for (int k = 0, n = _links.Count; k < Iterations; ++k)
@@ -165,10 +179,10 @@ namespace D3Sharp.Force
                     source = (TNode)link.Source;
                     target = (TNode)link.Target;
                     x = target.X + target.Vx - source.X - source.Vx;
-                    if (x == 0) 
+                    if (x == 0)
                         x = IRandom.Jiggle(RandomSource);
                     y = target.Y + target.Vy - source.Y - source.Vy;
-                    if (y == 0) 
+                    if (y == 0)
                         y = IRandom.Jiggle(RandomSource);
                     l = Math.Sqrt(x * x + y * y);
                     l = (l - distances[i]) / l * alpha * strengths[i];

@@ -24,6 +24,18 @@ namespace D3Sharp.Force
         }
         #endregion
 
+        protected override void Initialize()
+        {
+            if (Nodes.IsNullOrEmpty()) return;
+            int n = Nodes.Count;
+            strengths = new double[n];
+            xz = new double[n];
+            for (int i = 0; i < n; i++)
+            {
+                strengths[i] = double.IsNaN(xz[i] = XFunc(Nodes[i], i, Nodes)) ? 0 : strengthFunc(Nodes[i], i, Nodes);
+            }
+        }
+
         #region func properties
         double defaultStrength(TNode node, int i, List<TNode> nodes) => 0.1;
         public ForceDelegate<TNode> StrengthFunc
@@ -67,18 +79,6 @@ namespace D3Sharp.Force
                 node.Vx += (xz[i] - node.X) * strengths[i] * alpha;
             }
             return this;
-        }
-
-        protected override void Initialize()
-        {
-            if (Nodes.IsNullOrEmpty()) return;
-            int n = Nodes.Count;
-            strengths = new double[n];
-            xz = new double[n];
-            for (int i = 0; i < n; i++)
-            {
-                strengths[i] = double.IsNaN(xz[i] = XFunc(Nodes[i], i, Nodes)) ? 0 : strengthFunc(Nodes[i], i, Nodes);
-            }
         }
     }
 }

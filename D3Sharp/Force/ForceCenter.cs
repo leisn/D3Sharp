@@ -16,6 +16,26 @@ namespace D3Sharp.Force
             this.Cy = cy;
         }
 
+        protected override void Initialize() { }
+
+        #region setters
+        public ForceCenter<TNode> SetCx(double cx)
+        {
+            this.Cx = cx;
+            return this;
+        }
+        public ForceCenter<TNode> SetCy(double cy)
+        {
+            this.Cy = cy;
+            return this;
+        }
+        public ForceCenter<TNode> SetStrength(double strength)
+        {
+            this.Strength = strength;
+            return this;
+        }
+        #endregion
+
         public override Force<TNode> UseForce(double alpha = 0)
         {
             int i;
@@ -42,8 +62,5 @@ namespace D3Sharp.Force
             return this;
         }
 
-        protected override void Initialize()
-        {
-        }
     }
 }

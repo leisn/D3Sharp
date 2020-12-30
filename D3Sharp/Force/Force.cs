@@ -23,6 +23,8 @@ namespace D3Sharp.Force
 
         public Force() { }
 
+        protected abstract void Initialize();
+
         public Force<TNode> Initialize(List<TNode> nodes, IRandom randomSource)
         {
             this.nodes = nodes;
@@ -33,6 +35,5 @@ namespace D3Sharp.Force
 
         public abstract Force<TNode> UseForce(double alpha = 0);
 
-        protected abstract void Initialize();
     }
 }

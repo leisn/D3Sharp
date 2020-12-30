@@ -27,23 +27,21 @@ namespace D3Sharp.Force
 
         public ForceManyBody()
         {
-            strength = defaultStrength; 
+            strength = defaultStrength;
         }
 
-        public double DistanceMin
+        protected override void Initialize()
         {
-            get => Math.Sqrt(distanceMin2);
-            set => this.distanceMin2 = value * value;
-        }
-        public double DistanceMax
-        {
-            get => Math.Sqrt(distanceMax2);
-            set => this.distanceMax2 = value * value;
-        }
-        public double Theta
-        {
-            get => Math.Sqrt(theta2);
-            set => this.theta2 = value * value;
+            if (Nodes.IsNullOrEmpty())
+                return;
+            int n = Nodes.Count;
+            TNode node;
+            strengths = new double[n];
+            for (int i = 0; i < n; i++)
+            {
+                node = Nodes[i];
+                strengths[node.Index] = strength(node, i, Nodes);
+            }
         }
 
         #region func properties
@@ -64,20 +62,40 @@ namespace D3Sharp.Force
         }
         #endregion
 
-        protected override void Initialize()
+        #region setters
+        public double DistanceMin
         {
-            if (Nodes.IsNullOrEmpty())
-                return;
-            int n = Nodes.Count;
-            TNode node;
-            strengths = new double[n];
-            for (int i = 0; i < n; i++)
-            {
-                node = Nodes[i];
-                strengths[node.Index] = strength(node, i, Nodes);
-            }
+            get => Math.Sqrt(distanceMin2);
+            set => this.distanceMin2 = value * value;
         }
+        public double DistanceMax
+        {
+            get => Math.Sqrt(distanceMax2);
+            set => this.distanceMax2 = value * value;
+        }
+        public double Theta
+        {
+            get => Math.Sqrt(theta2);
+            set => this.theta2 = value * value;
+        }
+        public ForceManyBody<TNode> SetDistanceMin(double distanceMin2)
+        {
+            this.DistanceMin = distanceMin2;
+            return this;
+        }
+        public ForceManyBody<TNode> SetDistanceMax(int distanceMax2)
+        {
+            this.DistanceMax = distanceMax2;
+            return this;
+        }
+        public ForceManyBody<TNode> SetTheta(int theta2)
+        {
+            this.Theta = theta2;
+            return this;
+        }
+        #endregion
 
+        #region use force
         public override Force<TNode> UseForce(double alpha = 0)
         {
             int n = Nodes.Count;
@@ -179,5 +197,6 @@ namespace D3Sharp.Force
             } while ((quad = (QtMbNode)quad.Next) != null);
             return false;
         }
+        #endregion
     }
 }
