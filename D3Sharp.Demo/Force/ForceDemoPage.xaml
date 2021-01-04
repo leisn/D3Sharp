@@ -1,0 +1,456 @@
+﻿<Page x:Class="D3Sharp.Demo.Force.ForceDemoPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:D3Sharp.Demo.Force"
+      xmlns:control="clr-namespace:D3Sharp.Demo.Controls"
+      xmlns:helps="clr-namespace:D3Sharp.Demo.Helps"
+      mc:Ignorable="d" Loaded="Page_Loaded"
+      d:DesignHeight="450" d:DesignWidth="850"
+      FontFamily="{StaticResource font}" 
+      Title="D3Sharp - Force Demo">
+    <Page.Resources>
+        <helps:NullVisiableConventer x:Key="nullConverter"/>
+        <helps:BoolVisibleConventer x:Key="boolConverter"/>
+
+        <Style TargetType="Button">
+            <Setter Property="Padding" Value="5,2"/>
+            <Setter Property="Margin" Value="2,0"/>
+        </Style>
+
+        <Style x:Key="FocusVisual">
+            <Setter Property="Control.Template">
+                <Setter.Value>
+                    <ControlTemplate>
+                        <Rectangle Margin="2" StrokeDashArray="1 2" SnapsToDevicePixels="true" StrokeThickness="1" Stroke="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <SolidColorBrush x:Key="Button.Static.Background" Color="#FFDDDDDD"/>
+        <SolidColorBrush x:Key="Button.Static.Border" Color="#FF707070"/>
+        <SolidColorBrush x:Key="Button.MouseOver.Background" Color="#FFBEE6FD"/>
+        <SolidColorBrush x:Key="Button.MouseOver.Border" Color="#FF3C7FB1"/>
+        <SolidColorBrush x:Key="Button.Pressed.Background" Color="#FFC4E5F6"/>
+        <SolidColorBrush x:Key="Button.Pressed.Border" Color="#FF2C628B"/>
+        <SolidColorBrush x:Key="Button.Disabled.Background" Color="#FFF4F4F4"/>
+        <SolidColorBrush x:Key="Button.Disabled.Border" Color="#FFADB2B5"/>
+        <SolidColorBrush x:Key="Button.Disabled.Foreground" Color="#FF838383"/>
+        <SolidColorBrush x:Key="Button.Checked.Background" Color="#007ACC"/>
+        <SolidColorBrush x:Key="Button.Checked.Foreground" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="Button.Checked.Border" Color="#0F0F1E"/>
+        <Style x:Key="toggleButtonStyle" TargetType="{x:Type ToggleButton}">
+            <Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
+            <Setter Property="Background" Value="{StaticResource Button.Static.Background}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource Button.Static.Border}"/>
+            <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="1"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ToggleButton}">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}" SnapsToDevicePixels="true">
+                            <ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="Button.IsDefaulted" Value="true">
+                                <Setter Property="BorderBrush" TargetName="border" Value="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter Property="Background" TargetName="border" Value="{StaticResource Button.MouseOver.Background}"/>
+                                <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource Button.MouseOver.Border}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="true">
+                                <Setter Property="Background" TargetName="border" Value="{StaticResource Button.Pressed.Background}"/>
+                                <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource Button.Pressed.Border}"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="true">
+                                <Setter Property="Background" TargetName="border" Value="{StaticResource Button.Checked.Background}"/>
+                                <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource Button.Checked.Border}"/>
+                                <Setter Property="TextElement.Foreground" TargetName="contentPresenter" Value="{StaticResource Button.Checked.Foreground}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter Property="Background" TargetName="border" Value="{StaticResource Button.Disabled.Background}"/>
+                                <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource Button.Disabled.Border}"/>
+                                <Setter Property="TextElement.Foreground" TargetName="contentPresenter" Value="{StaticResource Button.Disabled.Foreground}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Storyboard x:Key="copyButtonStoryboard">
+            <ColorAnimationUsingKeyFrames  Duration="0:0:1.100"
+                                           Storyboard.TargetProperty="Background.Color"
+                                           Storyboard.TargetName="copyButton">
+                <DiscreteColorKeyFrame Value="#FFDDDDDD" KeyTime="0"/>
+                <DiscreteColorKeyFrame Value="LightSkyBlue" KeyTime="00:00:00.167"/>
+                <DiscreteColorKeyFrame Value="SkyBlue" KeyTime="00:00:00.334"/>
+                <DiscreteColorKeyFrame Value="DeepSkyBlue" KeyTime="00:00:00.501"/>
+                <DiscreteColorKeyFrame Value="#007ACC" KeyTime="00:00:00.668"/>
+                <DiscreteColorKeyFrame Value="DeepSkyBlue" KeyTime="00:00:00.789"/>
+                <DiscreteColorKeyFrame Value="SkyBlue" KeyTime="00:00:00.857"/>
+                <DiscreteColorKeyFrame Value="LightSkyBlue" KeyTime="00:00:00.996"/>
+                <DiscreteColorKeyFrame Value="#FFDDDDDD" KeyTime="00:00:01.081"/>
+            </ColorAnimationUsingKeyFrames>
+        </Storyboard>
+    </Page.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" MinWidth="567"/>
+            <ColumnDefinition Width="Auto" MinWidth="222"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" MinHeight="345"/>
+            <RowDefinition Height="186" MinHeight="168"/>
+        </Grid.RowDefinitions>
+
+        <Grid Margin="5,5,0,0">
+            <Canvas x:Name="canvas" Background="White">
+                <Ellipse x:Name="mark" Stroke="Black" StrokeThickness="3"
+                         Visibility="{Binding CollisionEnable,Converter={StaticResource boolConverter}}"
+                         Width="{Binding CollisionRadius}" Height="{Binding CollisionRadius}" 
+                         Fill="Transparent" Panel.ZIndex="60000"/>
+            </Canvas>
+            <Ellipse x:Name="fixedPoint" Fill="Black" Width="5" Height="5"  
+                     Visibility="{Binding FixedItem,Converter={StaticResource nullConverter}}" 
+                         HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Grid>
+
+        <StackPanel Margin="5,5,0,0" HorizontalAlignment="Left" VerticalAlignment="Top">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Background="#CCCEDB" FontSize="13" Padding="5" Text="Forces Simulator"/>
+                <control:MiniProgressRing IsActive="{Binding IsRunning}" Margin="10,0,0,0"/>
+            </StackPanel>
+            <StackPanel Margin="5,7,0,0" Orientation="Horizontal">
+                <TextBlock  Text="Iterations:"/>
+                <TextBlock Margin="10,0,0,0" Text="{Binding Iterations}"/>
+            </StackPanel>
+        </StackPanel>
+
+        <Border Background="#CCCEDB" Padding="7,5"
+                    HorizontalAlignment="Right" VerticalAlignment="Top">
+            <StackPanel Orientation="Horizontal" >
+                <Button  Content="Run" Click="Start_Click"
+                             IsEnabled="{Binding RunBunttonEnabled}"/>
+                <ToggleButton x:Name="fixedButton" Style="{DynamicResource toggleButtonStyle}"  BorderBrush="#007ACC"
+                                  Content="Fixed" IsChecked="True" Padding="5,2" Margin="15,0"
+                                  Checked="ToggleButton_Checked" Unchecked="ToggleButton_Unchecked"
+                                  ToolTip="Double click item to set fixed"/>
+                <Button Content="Reset" Click="Reset_Click"
+                            Background="AliceBlue"
+                            ToolTip="Reset nodes and centering's cx,cy to canvas center"/>
+            </StackPanel>
+        </Border>
+
+        <Expander ExpandDirection="Down" 
+                      Header="Links" Padding="7,5" 
+                      HorizontalAlignment="Right" VerticalAlignment="Bottom">
+            <StackPanel Orientation="Vertical" >
+                <StackPanel.Resources>
+                    <Style TargetType="Rectangle">
+                        <Setter Property="Width" Value="30"/>
+                        <Setter Property="Height" Value="20"/>
+                        <Setter Property="Margin" Value="0,3,10,0"/>
+                    </Style>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="VerticalAlignment" Value="Center"/>
+                    </Style>
+                </StackPanel.Resources>
+                <Line Stroke="LightGray" StrokeThickness="1"  Margin="0,0,0,5"
+                          X2="{Binding  Path=ActualWidth, RelativeSource={RelativeSource AncestorLevel=1,AncestorType=StackPanel}}"/>
+                <StackPanel Orientation="Horizontal">
+                    <Rectangle Fill="Red"/>
+                    <TextBlock Text="Realization"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Rectangle Fill="Orange"/>
+                    <TextBlock Text="Generalization"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Rectangle Fill="Yellow"/>
+                    <TextBlock Text="Association"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Rectangle Fill="Green"/>
+                    <TextBlock Text="Aggregation"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Rectangle Fill="Blue"/>
+                    <TextBlock Text="Composition"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Rectangle Fill="Purple"/>
+                    <TextBlock Text="Dependency"/>
+                </StackPanel>
+            </StackPanel>
+        </Expander>
+
+        <TextBox Grid.Row="1" Padding="10,20,10,10" 
+                 Text="{Binding FinalExcuteString,Mode=OneWay}" 
+                 Height="auto" AcceptsReturn="True"
+                 BorderThickness="0"/>
+        <Button Grid.Row="1" x:Name="copyButton" HorizontalAlignment="Right" VerticalAlignment="Top"
+                Margin="5,10" Content="Copy" Click="copy_Click"/>
+
+        <ScrollViewer Grid.Column="1" Grid.RowSpan="2" Background="#F5F5F5"
+                      VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="10,5">
+                <StackPanel.Resources>
+                    <Style TargetType="Expander">
+                        <Setter Property="FontSize" Value="14"/>
+                        <Setter Property="IsExpanded" Value="False"/>
+                        <Setter Property="Padding" Value="0,5"/>
+                    </Style>
+                    <Style TargetType="CheckBox">
+                        <Setter Property="VerticalAlignment" Value="Center"/>
+                    </Style>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="Margin" Value="5,2,10,2"/>
+                        <Setter Property="VerticalAlignment" Value="Center"/>
+                        <Setter Property="FontSize" Value="12"/>
+                    </Style>
+                    <Style TargetType="TextBox">
+                        <Setter Property="FontSize" Value="12"/>
+                        <Setter Property="Margin" Value="0,2"/>
+                        <Setter Property="MinHeight" Value="22"/>
+                        <Setter Property="VerticalContentAlignment" Value="Center"/>
+                    </Style>
+                </StackPanel.Resources>
+
+                <Expander Header="Simulation" IsExpanded="True">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Row="0" Text="Alpha"/>
+                        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Alpha,Mode=TwoWay}"/>
+                        <TextBlock Grid.Row="1" Text="AlphaDecay" ToolTip="0.0228 for Iterations 300, 0.001 for Iterations 6905"/>
+                        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding AlphaDecay,Mode=TwoWay}"/>
+                        <TextBlock Grid.Row="2" Text="AlphaMin"/>
+                        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding AlphaMin,Mode=TwoWay}"/>
+                        <TextBlock Grid.Row="3" Text="AlphaTarget"/>
+                        <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding AlphaTarget,Mode=TwoWay}"/>
+                        <TextBlock Grid.Row="4" Text="VelocityDecay"/>
+                        <TextBox  Grid.Row="4" Grid.Column="1" Text="{Binding VelocityDecay,Mode=TwoWay}"/>
+                        <TextBlock Grid.Row="5" Text="Interval" ToolTip="In milliseconds between every tick"/>
+                        <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding Interval,Mode=TwoWay}"/>
+                    </Grid>
+                </Expander>
+                <Separator/>
+                <Expander Header="Links">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Row="0" Text="Enable"/>
+                        <CheckBox  Grid.Row="0" Grid.Column="1" IsChecked="{Binding LinksEnable,Mode=TwoWay}"/>
+                        <TextBlock Grid.Row="1" Text="Iterations"/>
+                        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding LinksIterations,Mode=TwoWay}"/>
+                        <TextBlock Grid.Row="2" Text="Distance"/>
+                        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding LinksDistance,Mode=TwoWay}"/>
+                    </Grid>
+                </Expander>
+                <Separator/>
+                <Expander Header="Centering">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Row="0" Text="Enable"/>
+                        <CheckBox  Grid.Row="0" Grid.Column="1" IsChecked="{Binding CenteringEnable,Mode=TwoWay}"/>
+                        <TextBlock Grid.Row="1" Text="Cx"/>
+                        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Cx,Mode=TwoWay}"/>
+                        <TextBlock Grid.Row="2" Text="Cy"/>
+                        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding Cy,Mode=TwoWay}"/>
+                        <TextBlock Grid.Row="3" Text="Strength"/>
+                        <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding CenteringStrength,Mode=TwoWay}"/>
+                    </Grid>
+                </Expander>
+                <Separator/>
+                <Expander Header="Collision">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Row="0" Text="Enable"/>
+                        <CheckBox  Grid.Row="0" Grid.Column="1" IsChecked="{Binding CollisionEnable,Mode=TwoWay}"/>
+                        <TextBlock Grid.Row="1" Text="Radius"/>
+                        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding CollisionRadius,Mode=TwoWay}"/>
+                        <TextBlock Grid.Row="2" Text="Iterations"/>
+                        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding CollisionIterations,Mode=TwoWay}"/>
+                        <TextBlock Grid.Row="3" Text="Strength"/>
+                        <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding CollisionStrength,Mode=TwoWay}"/>
+                    </Grid>
+                </Expander>
+                <Separator/>
+                <Expander Header="Many-Body">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Row="0" Text="Enable"/>
+                        <CheckBox  Grid.Row="0" Grid.Column="1" IsChecked="{Binding ManyBodyEnable,Mode=TwoWay}"/>
+                        <TextBlock Grid.Row="1" Text="Strength"/>
+                        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding ManyBodyStrength,Mode=TwoWay}"/>
+                        <TextBlock Grid.Row="2" Text="DistanceMin"/>
+                        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding ManyBodyDistanceMin,Mode=TwoWay}"/>
+                        <TextBlock Grid.Row="3" Text="DistanceMax"/>
+                        <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding ManyBodyDistanceMax,Mode=TwoWay}"/>
+                        <TextBlock Grid.Row="4" Text="Theta"/>
+                        <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding ManyBodyTheta,Mode=TwoWay}"/>
+                    </Grid>
+                </Expander>
+                <Separator/>
+                <Expander Header="Radial">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Row="0" Text="Enable"/>
+                        <CheckBox  Grid.Row="0" Grid.Column="1" IsChecked="{Binding RadialEnable,Mode=TwoWay}"/>
+                        <TextBlock Grid.Row="1" Text="Radius"/>
+                        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding RadialRadius,Mode=TwoWay}"/>
+                        <TextBlock Grid.Row="2" Text="X"/>
+                        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding RadialX,Mode=TwoWay}"/>
+                        <TextBlock Grid.Row="3" Text="Y"/>
+                        <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding RadialY,Mode=TwoWay}"/>
+                        <TextBlock Grid.Row="4" Text="Strength"/>
+                        <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding RadialStrength,Mode=TwoWay}"/>
+                    </Grid>
+                </Expander>
+                <Separator/>
+                <Expander Header="X">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Row="0" Text="Enable"/>
+                        <CheckBox  Grid.Row="0" Grid.Column="1" IsChecked="{Binding XEnable,Mode=TwoWay}"/>
+                        <TextBlock Grid.Row="1" Text="X"/>
+                        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding XX,Mode=TwoWay}"/>
+                        <TextBlock Grid.Row="2" Text="Strength"/>
+                        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding XStrength,Mode=TwoWay}"/>
+                    </Grid>
+                </Expander>
+                <Separator/>
+                <Expander Header="Y">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Row="0" Text="Enable"/>
+                        <CheckBox  Grid.Row="0" Grid.Column="1" IsChecked="{Binding YEnable,Mode=TwoWay}"/>
+                        <TextBlock Grid.Row="1" Text="Y"/>
+                        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding YY,Mode=TwoWay}"/>
+                        <TextBlock Grid.Row="2" Text="Strength"/>
+                        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding YStrength,Mode=TwoWay}"/>
+                    </Grid>
+                </Expander>
+
+                <Expander Header="Low Level Bounded">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition Height="auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Row="0" Text="Enable"/>
+                        <CheckBox  Grid.Row="0" Grid.Column="1" IsChecked="{Binding BoundedEnable,Mode=TwoWay}"/>
+                        <TextBlock Grid.Row="1" Text="X1"/>
+                        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding BoundedX1,Mode=TwoWay}"/>
+                        <TextBlock Grid.Row="2" Text="Y1"/>
+                        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding BoundedY1,Mode=TwoWay}"/>
+                        <TextBlock Grid.Row="3" Text="X2"/>
+                        <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding BoundedX2,Mode=TwoWay}"/>
+                        <TextBlock Grid.Row="4" Text="Y2"/>
+                        <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding BoundedY2,Mode=TwoWay}"/>
+                        <TextBlock Grid.Row="5" Text="Strength"/>
+                        <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding BoundedStrength,Mode=TwoWay}"/>
+                    </Grid>
+                </Expander>
+            </StackPanel>
+        </ScrollViewer>
+
+        <GridSplitter Grid.Row="1" 
+                      VerticalAlignment="Top" HorizontalAlignment="Stretch"
+                      Background="#EEEEF2"
+                      Height="5" ShowsPreview="True"
+                      ResizeDirection="Rows"/>
+
+        <GridSplitter Grid.Column="1" Grid.RowSpan="2" 
+                      HorizontalAlignment="Left"  VerticalAlignment="Stretch"
+                      Background="#EEEEF2"
+                      Width="5" ShowsPreview="True"
+                      ResizeDirection="Columns"/>
+    </Grid>
+</Page>

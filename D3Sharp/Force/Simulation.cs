@@ -34,13 +34,26 @@ namespace D3Sharp.Force
         IList<TNode> _nodes;
         IRandom _randomSource;
 
-        Timer stepper;
-        private int fps = 30;
-        const double initialRadius = 10;
-        readonly double initialAngle = Math.PI * (3 - Math.Sqrt(5));
-        double velocityDecayReve = 0.6;
+        EventLoop stepper;
+        double initialCx;
+        double initialCy;
+        double initialRadius;
+        double initialAngle;
 
-        public double Alpha { get; set; } = 1;
+        double velocityDecayReve = 0.6;
+        double actualAlpha = 1;
+        double _alpha = 1;//save the use settings , restore for start
+
+        public double Alpha
+        {
+            get => _alpha;
+            set
+            {
+                this._alpha = value;
+                this.actualAlpha = value;
+            }
+        }
+        public double ActualAlpha => actualAlpha;
         public double AlphaMin { get; set; } = 0.001;
         public double AlphaDecay { get; set; }
         public double AlphaTarget { get; set; } = 0;
@@ -77,28 +90,34 @@ namespace D3Sharp.Force
                 this.velocityDecayReve = 1 - value;
             }
         }
-        public int FPS
+        public int Interval
         {
-            get => this.fps;
-            set
-            {
-                this.fps = value;
-                stepper.Interval = 1000 / value;
-            }
+            get => stepper.Interval;
+            set => stepper.Interval = value;
         }
         #endregion
 
-        public Simulation(List<TNode> nodes = null, IRandom random = null, int fps = 30)
+        #region Constructors
+        public Simulation(List<TNode> nodes = null, IRandom random = null,
+            double initialCx = 0, double initialCy = 0,
+            double initialRadius = 10, double initialAngle = double.NaN,
+            int interval = 5)
         {
-            this.fps = fps;
+            this.initialCx = initialCx;
+            this.initialCy = initialCy;
+            this.initialRadius = initialRadius;
+            this.initialAngle = double.IsNaN(initialAngle) ?
+                Math.PI * (3 - Math.Sqrt(5)) : initialAngle;
+
             AlphaDecay = 1 - Math.Pow(AlphaMin, 1d / 300);
-            stepper = new Timer(1000 / fps);
-            stepper.Elapsed += step;
+            stepper = new EventLoop(interval);
+            stepper.Events += step;
             _forces = new Dictionary<string, Force<TNode>>();
             this._randomSource = random ?? new Lcg();
             this._nodes = nodes ?? new List<TNode>();
             initializeNodes();
         }
+        #endregion
 
         public TNode Find(double x, double y, double radius = double.NaN)
         {
@@ -140,8 +159,8 @@ namespace D3Sharp.Force
                 {
                     var radius = initialRadius * Math.Sqrt(0.5 + i);
                     var angle = i * initialAngle;
-                    node.X = radius * Math.Cos(angle);
-                    node.Y = radius * Math.Sin(angle);
+                    node.X = radius * Math.Cos(angle) + initialCx;
+                    node.Y = radius * Math.Sin(angle) + initialCy;
                 }
                 if (double.IsNaN(node.Vx) || double.IsNaN(node.Vy))
                 {
@@ -152,7 +171,7 @@ namespace D3Sharp.Force
 
         private Force<TNode> initializeForce(Force<TNode> force)
         {
-            force.Initialize(Nodes, RandomSource);
+            force?.Initialize(Nodes, RandomSource);
             return force;
         }
 
@@ -191,9 +210,9 @@ namespace D3Sharp.Force
             this.AlphaTarget = alphaTarget;
             return this;
         }
-        public Simulation<TNode> SetFPS(int fps)
+        public Simulation<TNode> SetInterval(int interval)
         {
-            this.FPS = fps;
+            this.Interval = interval;
             return this;
         }
 
@@ -226,12 +245,19 @@ namespace D3Sharp.Force
         {
             return _forces[name];
         }
+
+        public Force<TNode> this[string name]
+        {
+            get => _forces.ContainsKey(name) ? _forces[name] : null;
+            set => _forces[name] = initializeForce(value);
+        }
+
         #endregion
 
-        #region timer events 
+        #region  events loop 
         private object obj = new object();
 
-        private void step(object sender, ElapsedEventArgs e)
+        private void step(object sender, EventArgs e)
         {
             //var thread = System.Threading.Thread.CurrentThread;
             //Debug.WriteLine($"Tick start on Thead{{{thread.ManagedThreadId}}}");
@@ -240,7 +266,7 @@ namespace D3Sharp.Force
                 Events?.Invoke(this, new SimulationEventArgs(SimulationState.BeforeTick));
                 Tick();
                 Events?.Invoke(this, new SimulationEventArgs(SimulationState.Ticked));
-                if (Alpha < AlphaMin)
+                if (actualAlpha < AlphaMin)
                 {
                     Stop();
                     Events?.Invoke(this, new SimulationEventArgs(SimulationState.End));
@@ -251,14 +277,12 @@ namespace D3Sharp.Force
 
         public Simulation<TNode> Tick(int iterations = 1)
         {
-            if (iterations == 0)
-                iterations = 1;
             for (int k = 0; k < iterations; k++)
             {
-                Alpha += (AlphaTarget - Alpha) * AlphaDecay;
+                actualAlpha += (AlphaTarget - actualAlpha) * AlphaDecay;
                 foreach (var force in _forces)
                 {
-                    force.Value.UseForce(Alpha);
+                    force.Value.UseForce(actualAlpha);
                 }
 
                 int n = Nodes.Count;
@@ -295,8 +319,15 @@ namespace D3Sharp.Force
 
         public Simulation<TNode> Start()
         {
+            this.actualAlpha = this._alpha;
             Events?.Invoke(this, new SimulationEventArgs(SimulationState.Starting));
             stepper.Start();
+            return this;
+        }
+
+        public Simulation<TNode> ResetRandom()
+        {
+            RandomSource?.Reset();
             return this;
         }
 

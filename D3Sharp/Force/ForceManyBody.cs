@@ -25,10 +25,22 @@ namespace D3Sharp.Force
         double alpha;
         TNode node;
 
+        #region Constructors
         public ForceManyBody()
         {
             strength = defaultStrength;
         }
+        public ForceManyBody(double strength = -30,
+            double distanceMin = 1, double distanceMax = double.NaN,
+            double theta = 0.9)
+        {
+            this.strength = (_, __, ___) => strength;
+            this.DistanceMin = distanceMin;
+            if (!double.IsNaN(distanceMax))
+                this.DistanceMax = distanceMax;
+            this.Theta = theta;
+        }
+        #endregion
 
         protected override void Initialize()
         {
@@ -83,12 +95,12 @@ namespace D3Sharp.Force
             this.DistanceMin = distanceMin2;
             return this;
         }
-        public ForceManyBody<TNode> SetDistanceMax(int distanceMax2)
+        public ForceManyBody<TNode> SetDistanceMax(double distanceMax2)
         {
             this.DistanceMax = distanceMax2;
             return this;
         }
-        public ForceManyBody<TNode> SetTheta(int theta2)
+        public ForceManyBody<TNode> SetTheta(double theta2)
         {
             this.Theta = theta2;
             return this;
@@ -172,7 +184,7 @@ namespace D3Sharp.Force
             }
             else if (quad.Length > 0 || l >= distanceMax2)
                 return false;
-           
+
             if (!Equals(quad.Data, node) || quad.Next != null)
             {
                 if (x == 0)

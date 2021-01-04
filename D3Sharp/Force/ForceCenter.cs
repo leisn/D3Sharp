@@ -10,10 +10,11 @@ namespace D3Sharp.Force
         public double Cy { get; set; }
         public double Strength { get; set; } = 1;
 
-        public ForceCenter(double cx = 0, double cy = 0)
+        public ForceCenter(double cx = 0, double cy = 0, double strength = 1)
         {
             this.Cx = cx;
             this.Cy = cy;
+            this.Strength = strength;
         }
 
         protected override void Initialize() { }

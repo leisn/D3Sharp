@@ -12,10 +12,11 @@ namespace D3Sharp.Force
         }
 
         /// <summary>
-        /// 返回0-1之间的小数
+        /// return 0-1 
         /// </summary>
         /// <returns></returns>
         double Next();
+        void Reset();
     }
 
     public class Lcg : IRandom
@@ -34,6 +35,11 @@ namespace D3Sharp.Force
         {
             seed = (a * seed + c) % m;
             return seed / m;
+        }
+
+        public void Reset()
+        {
+            seed = 1;
         }
     }
 }

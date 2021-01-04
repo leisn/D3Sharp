@@ -86,7 +86,7 @@ namespace D3Sharp.Force
             this.X = x;
             return this;
         }
-        public ForceRadial<TNode> SetRadialY(int y)
+        public ForceRadial<TNode> SetRadialY(double y)
         {
             this.Y = y;
             return this;

@@ -6,6 +6,9 @@ namespace D3Sharp.Force
 {
     public class Link
     {
+        /// <summary>
+        /// Index of Links, auto set
+        /// </summary>
         public int Index { get; set; }
 
         private object source;

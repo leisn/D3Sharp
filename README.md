@@ -4,6 +4,7 @@ C# implementation for [D3.js](https://github.com/d3/d3)  on .Net Standard 2.1 .
 ## Available
 
 * [D3Sharp.QuadTree](#d3sharpquadtree) for [d3-quadtree](https://github.com/d3/d3-quadtree).
+* [D3Sharp.Force](#d3sharpforce) for [d3-force](https://github.com/d3/d3-force).
 
 
 
@@ -76,3 +77,32 @@ Console.WriteLine($"Node type = {q.Root.GetType().Name}");
 //output: CustomNode`1
  ```
 
+### D3Sharp.Force
+
+Definition:
+
+``` csharp
+public class Link
+public interface INode : QuadTree.IQuadData 
+public abstract class Force<TNode> : IDisposable where TNode : INode
+public class Simulation<TNode> : IDisposable where TNode : INode      
+```
+
+Sample:
+
+```csharp
+...
+using D3Sharp.Force;
+...
+
+var simulation = new Simulation<Node>(Nodes)
+    .AddForce("Links", new ForceLink<Node,Link>(Links)
+    .AddForce("Centering", new ForceCenter<Node>(300, 300).SetStrength(1))
+    .AddForce("Collision", new ForceCollide<Node>(50, 0.3, 5)
+    .AddForce("Many-Body", new ForceManyBody<Node>().SetStrength(-100);
+simulation.Start();
+```
+
+Screenshot:
+
+![force-demo](Screenshot/force-demo.png)

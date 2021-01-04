@@ -25,12 +25,24 @@ namespace D3Sharp.Force
             distance = defaultDistance;
         }
 
-        public ForceLink(List<TLink> links, double strength, double distance)
+        public ForceLink(List<TLink> links, int iterations = 1,
+            ForceDelegate<TLink> strengthFunc = null,
+            ForceDelegate<TLink> distanceFunc = null)
+        {
+            this._links = links ?? new List<TLink>();
+            this.Iterations = iterations;
+            this.strength = strengthFunc ?? defaultStrength;
+            this.distance = distanceFunc ?? defaultDistance;
+        }
+
+        public ForceLink(List<TLink> links, double strength, double distance, int iterations = 1)
         {
             this._links = links ?? new List<TLink>();
 
-            this.SetStrength(strength);
-            this.SetDistance(distance);
+            this.strength = (_, __, ___) => strength;
+            this.distance = (_, __, ___) => distance;
+
+            this.Iterations = iterations;
         }
         #endregion
 

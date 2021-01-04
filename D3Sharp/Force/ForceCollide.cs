@@ -26,9 +26,11 @@ namespace D3Sharp.Force
         {
             this.radiusFunc = radiusFunc == null ? defaultRadius : radiusFunc;
         }
-        public ForceCollide(double radius)
+        public ForceCollide(double radius, double strength = 1, int iterations = 1)
         {
-            this.SetRadius(radius);
+            this.radiusFunc = (_, __, ___) => radius;
+            this.Strength = strength;
+            this.Iterations = iterations;
         }
         #endregion
 
